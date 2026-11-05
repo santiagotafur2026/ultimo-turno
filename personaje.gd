@@ -11,7 +11,10 @@ const RAPIDEZ_MAX = [0.0, 2.0, 0.0]
 @export var multiplicador = 1.0
 @export var empuje = Vector3.ZERO
 @export var accion = ""
+
 var avance = Vector3.ZERO
+var estado = Estado.QUIETO
+var rapidez_max = 0.0
 
 func _physics_process(delta):
 	velocity += get_gravity() * delta
@@ -31,12 +34,32 @@ func _physics_process(delta):
 
 	if direction.length() > 0:
 		basis = Basis.looking_at(direction)
+	
+	move_and_slide()
+	var antes=estado
+	rapidez_max= RAPIDEZ_MAX[estado]
+	if estado!= antes:
+		print("Estado ",Estado.keys()[estado]," .Rapidez max", rapidez_max ," m/s")
+		animar()
+		#_prueba()
+func elegir_estado():
+	if Input.is_action_pressed("enfriar"):
+		return Estado.ENFRIANDO
+	var rapidez = Vector2(velocity.x, velocity.z).length()
+	if rapidez < 0.1:
+		return Estado.QUIETO
+	if rapidez > speed_caminar + 0.1:
+		return Estado.CAMINAR
+	return Estado.CAMINAR
+
+func animar():
 	if accion != "":
 		anim.play(accion)
-	elif avance.length() > speed_caminar + 0.1:
-		anim.play("sprint")
-	elif avance.length() > 0.1:
-		anim.play("walk")
-	else:
-		anim.play("idle")
-	move_and_slide()
+		return
+	match estado:
+		Estado.QUIETO:
+			anim.play("idle")
+		Estado.CAMINAR:
+			anim.play("walk")
+		Estado.ENFRIANDO:
+			anim.play("crouch")
