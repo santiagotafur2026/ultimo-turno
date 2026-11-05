@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bk2r7qus8smkx" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dfqesq0cjixqx" path="res://personaje.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://c3qoojeln7dde" path="res://camara_primera.gd" id="2_h2yge"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_uxa2c"]
 size = Vector3(30, 1, 30)
@@ -27,6 +28,7 @@ loop_mode = 1
 
 [sub_resource type="Animation" id="Animation_0xm2m"]
 resource_name = "walk"
+length = 0.3
 loop_mode = 1
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_h2yge"]
@@ -53,15 +55,17 @@ debug_color = Color(0.42024747, 0.47493756, 0.96540266, 0.41960785)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 0)
 mesh = SubResource("BoxMesh_hchaj")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=733500645]
-transform = Transform3D(1, 0, 0, 0, 0.81915206, 0.57357645, 0, -0.57357645, 0.81915206, 0.7829555, -0.57456946, 9.917257)
+[node name="Camera3D" type="Camera3D" parent="." unique_id=733500645 node_paths=PackedStringArray("objetivo")]
+transform = Transform3D(1, 0, 0, 0, 0.81915206, 0.57357645, 0, -0.57357645, 0.81915206, 0, 5, 7)
 current = true
 fov = 68.17596
+script = ExtResource("2_h2yge")
+objetivo = NodePath("../Personaje")
 
 [node name="Personaje" type="CharacterBody3D" parent="." unique_id=426956505 node_paths=PackedStringArray("camara")]
 script = ExtResource("2_0xm2m")
 camara = NodePath("../Camera3D")
-speed_correr = 2.0
+speed_caminar = 3.0
 tiempo_arranque = 0.3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Personaje" unique_id=649337984]
