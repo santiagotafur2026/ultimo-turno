@@ -6,6 +6,33 @@ size = Vector3(30, 1, 30)
 [sub_resource type="BoxMesh" id="BoxMesh_hchaj"]
 size = Vector3(30, 1, 30)
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r6318"]
+radius = 0.35
+height = 1.75
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_uxa2c"]
+radius = 0.35
+height = 1.75
+
+[sub_resource type="Animation" id="Animation_7dm0k"]
+resource_name = "idle"
+loop_mode = 1
+
+[sub_resource type="Animation" id="Animation_ig7tw"]
+resource_name = "sprint"
+loop_mode = 1
+
+[sub_resource type="Animation" id="Animation_0xm2m"]
+resource_name = "walk"
+loop_mode = 1
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_h2yge"]
+_data = {
+&"idle": SubResource("Animation_7dm0k"),
+&"sprint": SubResource("Animation_ig7tw"),
+&"walk": SubResource("Animation_0xm2m")
+}
+
 [node name="Main" type="Node3D" unique_id=1245618563]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1310419929]
@@ -13,15 +40,30 @@ transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70
 shadow_enabled = true
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=671500793]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=124317424]
 shape = SubResource("BoxShape3D_uxa2c")
 debug_color = Color(0.42024747, 0.47493756, 0.96540266, 0.41960785)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=504488516]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 0)
 mesh = SubResource("BoxMesh_hchaj")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=733500645]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 5, 7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 36.029)
 current = true
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=426956505]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D" unique_id=649337984]
+shape = SubResource("CapsuleShape3D_r6318")
+
+[node name="Modelo" type="Node3D" parent="CharacterBody3D" unique_id=453985227]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D/Modelo" unique_id=83264983]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.58131355, -2.3320289, -0.96136624)
+mesh = SubResource("CapsuleMesh_uxa2c")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CharacterBody3D/Modelo" unique_id=1329586828]
+libraries/ = SubResource("AnimationLibrary_h2yge")
