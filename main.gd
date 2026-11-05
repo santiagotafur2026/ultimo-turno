@@ -1,6 +1,6 @@
 extends Node3D
 
-# Pon false para reproducir el "ANTES" (falta la acción 'correr').
+
 const REGISTRAR_CORRER = true
 
 func _ready():
