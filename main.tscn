@@ -1,7 +1,27 @@
 [gd_scene format=3 uid="uid://b17nywy4nuhkd"]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_uxa2c"]
+size = Vector3(30, 1, 30)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hchaj"]
+size = Vector3(30, 1, 30)
+
 [node name="Main" type="Node3D" unique_id=1245618563]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1310419929]
 transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 0, 0)
 shadow_enabled = true
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=671500793]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=124317424]
+shape = SubResource("BoxShape3D_uxa2c")
+debug_color = Color(0.42024747, 0.47493756, 0.96540266, 0.41960785)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=504488516]
+mesh = SubResource("BoxMesh_hchaj")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=733500645]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 5, 7)
+current = true
