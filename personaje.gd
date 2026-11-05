@@ -1,5 +1,6 @@
 extends CharacterBody3D
-
+enum Estado { QUIETO, CAMINAR, ENFRIANDO }
+const RAPIDEZ_MAX = [0.0, 2.0, 0.0]
 @export var camara: Camera3D
 @export var speed_caminar = 2.5
 @export var speed_correr = 6.0
