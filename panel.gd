@@ -1,4 +1,4 @@
-extends Node3D
+extends StaticBody3D
 var calor = 100.0
 
 func enfriar(delta):
