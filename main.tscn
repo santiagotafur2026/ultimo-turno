@@ -62,7 +62,7 @@ shape = SubResource("BoxShape3D_uxa2c")
 debug_color = Color(0.42024747, 0.47493756, 0.96540266, 0.41960785)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=504488516]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03821659, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0014564991, 0.030973434, -0.022338867)
 mesh = SubResource("BoxMesh_hchaj")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=733500645 node_paths=PackedStringArray("objetivo")]
@@ -106,6 +106,11 @@ mesh = SubResource("BoxMesh_uxa2c")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.36846304)
 shape = SubResource("BoxShape3D_hchaj")
 
+[node name="Label3D" type="Label3D" parent="panel1" unique_id=1980813844]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0395044, 1.5, 0)
+billboard = 1
+text = "100.0"
+
 [node name="panel3" type="StaticBody3D" parent="." unique_id=961389470 groups=["interactivos"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.83553517, 1.0957007, 7.5433097)
 script = ExtResource("5_272bh")
@@ -117,6 +122,11 @@ mesh = SubResource("BoxMesh_uxa2c")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="panel3" unique_id=412281422]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.36846304)
 shape = SubResource("BoxShape3D_hchaj")
+
+[node name="Label3D" type="Label3D" parent="panel3" unique_id=2057900272]
+transform = Transform3D(-0.3445459, 0.012350607, 0.9386884, -0.06285843, 0.99736583, -0.03619483, -0.93666255, -0.07147521, -0.342862, 0.4774115, 2.6614113, 0)
+text = "100.0
+"
 
 [node name="panel2" type="StaticBody3D" parent="." unique_id=1313676543 groups=["interactivos"]]
 transform = Transform3D(1.36, 0, 0, 0, 1.359, 0, 0, 0, 1, -0.95015657, 1.1260657, 3.0159419)
@@ -130,6 +140,11 @@ mesh = SubResource("BoxMesh_uxa2c")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.36846304)
 shape = SubResource("BoxShape3D_hchaj")
 
+[node name="Label3D" type="Label3D" parent="panel2" unique_id=632282939]
+transform = Transform3D(0.7352941, 0, 0, 0, 0.7358345, 0, 0, 0, 1, -0.84712446, 1.4460542, 0.23784733)
+billboard = 1
+text = "100.0"
+
 [node name="panel4" type="StaticBody3D" parent="." unique_id=368436904 groups=["interactivos"]]
 transform = Transform3D(1.0426005, 0, 0, 0, 1.0420878, 0, 0, 0, 0.7673696, -0.95015657, 1.0594807, -5.226932)
 script = ExtResource("5_272bh")
@@ -141,3 +156,8 @@ mesh = SubResource("BoxMesh_uxa2c")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="panel4" unique_id=1897845023]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.36846304)
 shape = SubResource("BoxShape3D_hchaj")
+
+[node name="Label3D" type="Label3D" parent="panel4" unique_id=2014437375]
+transform = Transform3D(0.9591401, 0, 0, 0, 0.9596113, 0, 0, 0, 1.3031511, -1.2966034, 1.9399685, 0.019942284)
+billboard = 1
+text = "100.0"
