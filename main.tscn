@@ -2,6 +2,9 @@
 
 [ext_resource type="Script" uid="uid://bk2r7qus8smkx" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dfqesq0cjixqx" path="res://personaje.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://c3qoojeln7dde" path="res://camara_primera.gd" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://c5toiubar7f8n" path="res://interactuar.gd" id="4_lquwl"]
+[ext_resource type="Script" uid="uid://c80mojbxmjab1" path="res://PANEL.gd" id="5_272bh"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_uxa2c"]
 size = Vector3(30, 1, 30)
@@ -27,6 +30,7 @@ loop_mode = 1
 
 [sub_resource type="Animation" id="Animation_0xm2m"]
 resource_name = "walk"
+length = 0.3
 loop_mode = 1
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_h2yge"]
@@ -35,6 +39,14 @@ _data = {
 &"sprint": SubResource("Animation_ig7tw"),
 &"walk": SubResource("Animation_0xm2m")
 }
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lquwl"]
+albedo_color = Color(1, 1, 0.35686275, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_uxa2c"]
+material = SubResource("StandardMaterial3D_lquwl")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hchaj"]
 
 [node name="Main" type="Node3D" unique_id=1245618563]
 script = ExtResource("1_ig7tw")
@@ -50,18 +62,20 @@ shape = SubResource("BoxShape3D_uxa2c")
 debug_color = Color(0.42024747, 0.47493756, 0.96540266, 0.41960785)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=504488516]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03821659, 0)
 mesh = SubResource("BoxMesh_hchaj")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=733500645]
-transform = Transform3D(1, 0, 0, 0, 0.81915206, 0.57357645, 0, -0.57357645, 0.81915206, 0.7829555, -0.57456946, 9.917257)
+[node name="Camera3D" type="Camera3D" parent="." unique_id=733500645 node_paths=PackedStringArray("objetivo")]
+transform = Transform3D(1, 0, 0, 0, 0.81915206, 0.57357645, 0, -0.57357645, 0.81915206, 0, 5, 7)
 current = true
 fov = 68.17596
+script = ExtResource("2_h2yge")
+objetivo = NodePath("../Personaje")
 
 [node name="Personaje" type="CharacterBody3D" parent="." unique_id=426956505 node_paths=PackedStringArray("camara")]
 script = ExtResource("2_0xm2m")
 camara = NodePath("../Camera3D")
-speed_correr = 2.0
+speed_caminar = 3.0
 tiempo_arranque = 0.3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Personaje" unique_id=649337984]
@@ -71,8 +85,59 @@ shape = SubResource("CapsuleShape3D_r6318")
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Personaje/Modelo" unique_id=83264983]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.58131355, -3.6342807, -0.96136624)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8225813, 1.4063113, -1.1721338)
 mesh = SubResource("CapsuleMesh_uxa2c")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Personaje/Modelo" unique_id=1329586828]
 libraries/ = SubResource("AnimationLibrary_h2yge")
+
+[node name="Interactuar" type="Node" parent="Personaje" unique_id=843318033]
+script = ExtResource("4_lquwl")
+
+[node name="panel1" type="StaticBody3D" parent="." unique_id=1993623720 groups=["interactivos"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.83553517, 1.0510676, -1.1199257)
+script = ExtResource("5_272bh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="panel1" unique_id=667467723]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.8847561, -1.9753264, 0, 0.27748728)
+mesh = SubResource("BoxMesh_uxa2c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="panel1" unique_id=1294699092]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.36846304)
+shape = SubResource("BoxShape3D_hchaj")
+
+[node name="panel3" type="StaticBody3D" parent="." unique_id=961389470 groups=["interactivos"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.83553517, 1.0957007, 7.5433097)
+script = ExtResource("5_272bh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="panel3" unique_id=1460544457]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.8847561, -1.9753264, 0, 0.27748728)
+mesh = SubResource("BoxMesh_uxa2c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="panel3" unique_id=412281422]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.36846304)
+shape = SubResource("BoxShape3D_hchaj")
+
+[node name="panel2" type="StaticBody3D" parent="." unique_id=1313676543 groups=["interactivos"]]
+transform = Transform3D(1.36, 0, 0, 0, 1.359, 0, 0, 0, 1, -0.95015657, 1.1260657, 3.0159419)
+script = ExtResource("5_272bh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="panel2" unique_id=1087414521]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9753264, 0, 0.27748728)
+mesh = SubResource("BoxMesh_uxa2c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="panel2" unique_id=787185841]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.36846304)
+shape = SubResource("BoxShape3D_hchaj")
+
+[node name="panel4" type="StaticBody3D" parent="." unique_id=368436904 groups=["interactivos"]]
+transform = Transform3D(1.0426005, 0, 0, 0, 1.0420878, 0, 0, 0, 0.7673696, -0.95015657, 1.0594807, -5.226932)
+script = ExtResource("5_272bh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="panel4" unique_id=1701635943]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9753264, 0, 0.27748728)
+mesh = SubResource("BoxMesh_uxa2c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="panel4" unique_id=1897845023]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.36846304)
+shape = SubResource("BoxShape3D_hchaj")
