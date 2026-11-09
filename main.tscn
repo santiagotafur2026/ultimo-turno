@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://cn23n5kb1nib2" path="res://director.gd" id="6_7mycd"]
 [ext_resource type="Script" uid="uid://ncg5e25hjdee" path="res://sistema_sol.gd" id="7_5vw27"]
 [ext_resource type="Script" uid="uid://cstt0fiamcniw" path="res://ciclo_dia.gd" id="8_kek77"]
+[ext_resource type="Script" uid="uid://bmr3xvccvx6ty" path="res://fotometro.gd" id="9_kek77"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_uxa2c"]
 size = Vector3(30, 1, 30)
@@ -185,3 +186,9 @@ script = ExtResource("8_kek77")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="SistemaSol" unique_id=907306468]
 environment = SubResource("Environment_5vw27")
+
+[node name="Fotometro" type="Node" parent="." unique_id=1747435411 node_paths=PackedStringArray("sistema", "camara", "superficie")]
+script = ExtResource("9_kek77")
+sistema = NodePath("../SistemaSol")
+camara = NodePath("../Camera3D")
+superficie = NodePath("../StaticBody3D/MeshInstance3D")

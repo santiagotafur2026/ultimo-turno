@@ -1,10 +1,10 @@
-class_name CicloDia extends Node
+extends Node
 
-const NARANJA := Color(0.9, 0.94, 1.0) # Blanco frío para tu juego
+const NARANJA := Color(0.9, 0.94, 1.0) # Color frío de tu paleta
 
 @export var hora := 11.0 
 @export var duracion_dia := 48.0 
-@export var pausado := false
+@export var pausado := true
 
 func avanzar(dt: float) -> void:
 	if not pausado:
