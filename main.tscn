@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://c5toiubar7f8n" path="res://interactuar.gd" id="4_lquwl"]
 [ext_resource type="Script" uid="uid://c80mojbxmjab1" path="res://PANEL.gd" id="5_272bh"]
 [ext_resource type="Script" uid="uid://cn23n5kb1nib2" path="res://director.gd" id="6_7mycd"]
+[ext_resource type="Script" uid="uid://ncg5e25hjdee" path="res://sistema_sol.gd" id="7_5vw27"]
+[ext_resource type="Script" uid="uid://cstt0fiamcniw" path="res://ciclo_dia.gd" id="8_kek77"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_uxa2c"]
 size = Vector3(30, 1, 30)
@@ -48,6 +50,8 @@ albedo_color = Color(1, 1, 0.35686275, 1)
 material = SubResource("StandardMaterial3D_lquwl")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hchaj"]
+
+[sub_resource type="Environment" id="Environment_5vw27"]
 
 [node name="Main" type="Node3D" unique_id=1245618563]
 script = ExtResource("1_ig7tw")
@@ -126,7 +130,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.
 shape = SubResource("BoxShape3D_hchaj")
 
 [node name="Label3D" type="Label3D" parent="Refrigeracion" unique_id=2057900272]
-transform = Transform3D(-0.07186699, -0.012161732, 0.99734026, -0.07845208, 0.99689656, 0.0065032, -0.99432397, -0.07777599, -0.07259804, -0.57149863, 2.4533005, 0.38594675)
+transform = Transform3D(-0.07186699, -0.012161732, 0.99734026, -0.07845208, 0.99689656, 0.0065032, -0.99432397, -0.07777599, -0.07259804, -0.57149863, 1.8632727, -0.020071507)
 text = "100.0
 "
 
@@ -168,3 +172,16 @@ text = "100.0"
 
 [node name="Director" type="Node" parent="." unique_id=1002874929]
 script = ExtResource("6_7mycd")
+
+[node name="SistemaSol" type="Node" parent="." unique_id=1168946499 node_paths=PackedStringArray("sol", "entorno")]
+script = ExtResource("7_5vw27")
+sol = NodePath("DirectionalLight3D")
+entorno = NodePath("WorldEnvironment")
+
+[node name="CicloDia" type="Node" parent="SistemaSol" unique_id=1543835624]
+script = ExtResource("8_kek77")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="SistemaSol" unique_id=1945235361]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SistemaSol" unique_id=907306468]
+environment = SubResource("Environment_5vw27")
