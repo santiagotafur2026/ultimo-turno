@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://c3qoojeln7dde" path="res://camara_primera.gd" id="2_h2yge"]
 [ext_resource type="Script" uid="uid://c5toiubar7f8n" path="res://interactuar.gd" id="4_lquwl"]
 [ext_resource type="Script" uid="uid://c80mojbxmjab1" path="res://PANEL.gd" id="5_272bh"]
+[ext_resource type="Script" uid="uid://cn23n5kb1nib2" path="res://director.gd" id="6_7mycd"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_uxa2c"]
 size = Vector3(30, 1, 30)
@@ -94,7 +95,7 @@ libraries/ = SubResource("AnimationLibrary_h2yge")
 [node name="Interactuar" type="Node" parent="Personaje" unique_id=843318033]
 script = ExtResource("4_lquwl")
 
-[node name="panel1" type="StaticBody3D" parent="." unique_id=1993623720 groups=["interactivos"]]
+[node name="panel1" type="StaticBody3D" parent="." unique_id=1993623720 groups=["interactivos", "paneles"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.83553517, 1.0510676, -1.1199257)
 script = ExtResource("5_272bh")
 
@@ -107,11 +108,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.
 shape = SubResource("BoxShape3D_hchaj")
 
 [node name="Label3D" type="Label3D" parent="panel1" unique_id=1980813844]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0395044, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0395044, 1.7731342, 0)
 billboard = 1
 text = "100.0"
 
-[node name="panel3" type="StaticBody3D" parent="." unique_id=961389470 groups=["interactivos"]]
+[node name="panel3" type="StaticBody3D" parent="." unique_id=961389470 groups=["interactivos", "paneles"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.83553517, 1.0957007, 7.5433097)
 script = ExtResource("5_272bh")
 
@@ -124,11 +125,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9614843, -0.0150101185, 0.
 shape = SubResource("BoxShape3D_hchaj")
 
 [node name="Label3D" type="Label3D" parent="panel3" unique_id=2057900272]
-transform = Transform3D(-0.3445459, 0.012350607, 0.9386884, -0.06285843, 0.99736583, -0.03619483, -0.93666255, -0.07147521, -0.342862, 0.4774115, 2.6614113, 0)
+transform = Transform3D(-0.07186699, -0.012161732, 0.99734026, -0.07845208, 0.99689656, 0.0065032, -0.99432397, -0.07777599, -0.07259804, -0.57149863, 2.4533005, 0.38594675)
 text = "100.0
 "
 
-[node name="panel2" type="StaticBody3D" parent="." unique_id=1313676543 groups=["interactivos"]]
+[node name="panel2" type="StaticBody3D" parent="." unique_id=1313676543 groups=["interactivos", "paneles"]]
 transform = Transform3D(1.36, 0, 0, 0, 1.359, 0, 0, 0, 1, -0.95015657, 1.1260657, 3.0159419)
 script = ExtResource("5_272bh")
 
@@ -145,7 +146,7 @@ transform = Transform3D(0.7352941, 0, 0, 0, 0.7358345, 0, 0, 0, 1, -0.84712446, 
 billboard = 1
 text = "100.0"
 
-[node name="panel4" type="StaticBody3D" parent="." unique_id=368436904 groups=["interactivos"]]
+[node name="panel4" type="StaticBody3D" parent="." unique_id=368436904 groups=["interactivos", "paneles"]]
 transform = Transform3D(1.0426005, 0, 0, 0, 1.0420878, 0, 0, 0, 0.7673696, -0.95015657, 1.0594807, -5.226932)
 script = ExtResource("5_272bh")
 
@@ -161,3 +162,6 @@ shape = SubResource("BoxShape3D_hchaj")
 transform = Transform3D(0.9591401, 0, 0, 0, 0.9596113, 0, 0, 0, 1.3031511, -1.2966034, 1.9399685, 0.019942284)
 billboard = 1
 text = "100.0"
+
+[node name="Director" type="Node" parent="." unique_id=1002874929]
+script = ExtResource("6_7mycd")
