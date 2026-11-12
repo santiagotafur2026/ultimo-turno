@@ -44,4 +44,5 @@ func _process(_delta: float) -> void:
 	if i < horas.size():
 		sistema.ciclo.hora = horas[i] # Avanzar a la siguiente hora
 	else:
+		sistema.ciclo.pausado = false # Reanuda el ciclo una vez finalizadas las medidas
 		set_process(false) # Terminar

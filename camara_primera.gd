@@ -18,10 +18,10 @@ func _unhandled_input(evento):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var capturado = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	if evento is InputEventMouseMotion and capturado:
-	
 		var s = sensibilidad * fov / fov_normal # apuntando, más lento
 		rotation.y -= evento.relative.x * s
 		rotation.x -= evento.relative.y * s
+		rotation.x = clampf(rotation.x, deg_to_rad(-80.0), deg_to_rad(80.0))
 
 		
 

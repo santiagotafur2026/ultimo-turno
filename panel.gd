@@ -1,48 +1,49 @@
 extends Node3D
 
-@export var calor = 30.0
-@export var genera = 1.0
-@onready var texto = $Label3D
+signal panel_apagado(panel: Node3D)
+signal calor_cambiado(nuevo_calor: float)
 
-var apagado = false 
+@export var calor: float = 30.0
+@export var tasa_generacion: float = 1.0
+var tasa_extra: float = 0.0
+var apagado: bool = false
 
-func _ready():
+@onready var texto: Label3D = $Label3D
+
+func _ready() -> void:
 	actualizar_texto()
 
-func _physics_process(delta):
+func _physics_process(delta: float) -> void:
 	if not apagado:
-		calor += genera * delta
+		# M2: Generación continua de calor con escalada
+		calor += (tasa_generacion + tasa_extra) * delta
 		if calor >= 100.0:
 			calor = 100.0
 			apagado = true
-			print("¡", name, " se ha apagado!")
+			panel_apagado.emit(self)
 		actualizar_texto()
+		calor_cambiado.emit(calor)
 
-func subir(cuanto):
-	if apagado:
-		return
-	calor += cuanto
-	if calor >= 100.0:
-		calor = 100.0
-		apagado = true
-		print("¡", name, " se ha apagado!")
-	actualizar_texto()
-	print(name, " sube ", cuanto, ": calor ", snappedf(calor, 0.1))
-
-func enfriar(delta):
+func enfriar(delta: float) -> void:
+	# M3: Enfriamiento de 5 por segundo mientras no esté apagado
 	if apagado:
 		return
 	calor -= 5.0 * delta
-	if calor < 0:
-		calor = 0
+	if calor < 0.0:
+		calor = 0.0
 	actualizar_texto()
+	calor_cambiado.emit(calor)
 
-func actualizar_texto():
+func actualizar_texto() -> void:
 	if texto != null:
-		texto.text = str(snappedf(calor, 0.1))
-		if calor >= 90:
-			texto.modulate = Color.RED
-		elif calor >= 50:
-			texto.modulate = Color.ORANGE
+		if apagado:
+			texto.text = "%s\nAPAGADO (100°)" % name
+			texto.modulate = Color(0.85, 0.15, 0.15)
 		else:
-			texto.modulate = Color.GREEN
+			texto.text = "%s\n%.1f°C" % [name, calor]
+			if calor >= 90.0:
+				texto.modulate = Color.RED
+			elif calor >= 50.0:
+				texto.modulate = Color.ORANGE
+			else:
+				texto.modulate = Color.GREEN

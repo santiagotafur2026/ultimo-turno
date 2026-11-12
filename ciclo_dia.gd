@@ -4,7 +4,7 @@ const NARANJA := Color(0.9, 0.94, 1.0) # Color frío de tu paleta
 
 @export var hora := 11.0 
 @export var duracion_dia := 48.0 
-@export var pausado := true
+@export var pausado := false
 
 func avanzar(dt: float) -> void:
 	if not pausado:
