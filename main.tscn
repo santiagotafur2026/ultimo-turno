@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://c3qoojeln7dde" path="res://camara_primera.gd" id="2_h2yge"]
 [ext_resource type="Script" uid="uid://c5toiubar7f8n" path="res://interactuar.gd" id="4_lquwl"]
 [ext_resource type="Script" uid="uid://c80mojbxmjab1" path="res://PANEL.gd" id="5_272bh"]
-[ext_resource type="Script" path="res://game_manager.gd" id="6_7mycd"]
+[ext_resource type="Script" uid="uid://b4vsarubpe0rt" path="res://game_manager.gd" id="6_7mycd"]
 [ext_resource type="Script" uid="uid://ncg5e25hjdee" path="res://sistema_sol.gd" id="7_5vw27"]
 [ext_resource type="Script" uid="uid://cstt0fiamcniw" path="res://ciclo_dia.gd" id="8_kek77"]
 [ext_resource type="Script" uid="uid://bmr3xvccvx6ty" path="res://fotometro.gd" id="9_kek77"]
@@ -61,6 +61,13 @@ script = ExtResource("1_ig7tw")
 transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 0, 0)
 shadow_enabled = true
 
+[node name="LuzEmergencia" type="OmniLight3D" parent="." unique_id=2083948271]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+visible = false
+light_color = Color(0.85, 0.15, 0.15, 1)
+light_energy = 0.8
+omni_range = 20.0
+
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=671500793]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=124317424]
@@ -81,7 +88,6 @@ objetivo = NodePath("../Personaje")
 [node name="Personaje" type="CharacterBody3D" parent="." unique_id=426956505 node_paths=PackedStringArray("camara") groups=["jugador"]]
 script = ExtResource("2_0xm2m")
 camara = NodePath("../Camera3D")
-speed_caminar = 2.0
 tiempo_arranque = 0.3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Personaje" unique_id=649337984]
@@ -171,8 +177,10 @@ transform = Transform3D(0.9591401, 0, 0, 0, 0.9596113, 0, 0, 0, 1.3031511, -1.29
 billboard = 1
 text = "100.0"
 
-[node name="GameManager" type="Node" parent="." unique_id=1002874929]
+[node name="GameManager" type="Node" parent="." unique_id=1002874929 node_paths=PackedStringArray("luz_principal", "luz_emergencia")]
 script = ExtResource("6_7mycd")
+luz_principal = NodePath("../DirectionalLight3D")
+luz_emergencia = NodePath("../LuzEmergencia")
 
 [node name="SistemaSol" type="Node" parent="." unique_id=1168946499 node_paths=PackedStringArray("sol", "entorno")]
 script = ExtResource("7_5vw27")
@@ -187,7 +195,7 @@ script = ExtResource("8_kek77")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="SistemaSol" unique_id=907306468]
 environment = SubResource("Environment_5vw27")
 
-[node name="Fotometro" type="Node" parent="." unique_id=1747435411 process_mode=4 node_paths=PackedStringArray("sistema", "camara", "superficie")]
+[node name="Fotometro" type="Node" parent="." unique_id=1747435411 node_paths=PackedStringArray("sistema", "camara", "superficie")]
 script = ExtResource("9_kek77")
 sistema = NodePath("../SistemaSol")
 camara = NodePath("../Camera3D")
