@@ -4,10 +4,10 @@ extends Node
 @onready var pj: CharacterBody3D = get_parent()
 
 var tiempo_reinicio: float = 0.0
-const TIEMPO_REINICIO_TOTAL: float = 4.0 # M10: 4 segundos continuos
+const TIEMPO_REINICIO_TOTAL: float = 4.0 # Cuatro segundos continuos para reactivacion
 
 func _physics_process(delta: float) -> void:
-	# 1. Solicitud de ayuda de emergencia (F)
+	# Solicitud de ayuda de emergencia por radio
 	if Input.is_action_just_pressed("pedir_ayuda"):
 		var gm = get_tree().get_first_node_in_group("game_manager")
 		if gm and gm.has_method("solicitar_ayuda"):
@@ -19,7 +19,7 @@ func _physics_process(delta: float) -> void:
 		_cancelar_reinicio()
 		return
 	
-	# 2. Reiniciar panel apagado (mantener E durante 4 segundos)
+	# Reinicio manual de panel apagado sosteniendo la tecla
 	if obj.get("apagado") == true:
 		if Input.is_action_pressed("reiniciar"):
 			tiempo_reinicio += delta
@@ -33,11 +33,11 @@ func _physics_process(delta: float) -> void:
 				tiempo_reinicio = 0.0
 		else:
 			_cancelar_reinicio()
-		return # Mientras el panel esté apagado o en reinicio, no se puede enfriar
+		return # Mientras el panel este apagado o en proceso de reinicio no se puede enfriar
 	else:
 		_cancelar_reinicio()
 	
-	# 3.  Enfriamiento manual de panel activo (mantener clic izquierdo)
+	# Enfriamiento manual sosteniendo el clic cerca de un panel encendido
 	if Input.is_action_pressed("enfriar"):
 		if obj.has_method("enfriar"):
 			obj.enfriar(delta)
@@ -46,7 +46,7 @@ func _physics_process(delta: float) -> void:
 
 func _cancelar_reinicio() -> void:
 	if tiempo_reinicio > 0.0:
-		print("[REINICIO] Cancelado (se soltó la tecla E o el jugador se alejó)")
+		print("[REINICIO] Proceso cancelado (tecla liberada o jugador fuera de alcance)")
 		tiempo_reinicio = 0.0
 
 func mas_cercano() -> Node3D:

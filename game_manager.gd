@@ -2,10 +2,10 @@ class_name GameManager extends Node
 
 enum EstadoPartida { JUGANDO, VICTORIA, DERROTA }
 
-const DURACION_PARTIDA: float = 300.0 # 5 minutos (M14)
-const INTEGRIDAD_INICIAL: float = 100.0 # M13
-const VIDA_INICIAL: float = 100.0 # M12
-const PENALIZACION_APAGADO: float = 20.0 # M5: 20% por apagado
+const DURACION_PARTIDA: float = 300.0 # Duracion del turno en segundos (5 minutos)
+const INTEGRIDAD_INICIAL: float = 100.0
+const VIDA_INICIAL: float = 100.0
+const PENALIZACION_APAGADO: float = 20.0 # Reduccion de integridad por cada colapso
 
 signal segundo_actualizado(tiempo_restante: float)
 signal minuto_cambiado(nuevo_minuto: int, nueva_tasa: float)
@@ -15,6 +15,7 @@ signal partida_terminada(victoria: bool, motivo: String, puntaje: int)
 
 @export var luz_principal: Light3D
 @export var luz_emergencia: Light3D
+@export var etiqueta_reloj: Label3D
 
 var estado_partida: EstadoPartida = EstadoPartida.JUGANDO
 var tiempo_restante: float = DURACION_PARTIDA
@@ -27,7 +28,7 @@ var motivo_fin: String = ""
 var puntaje_final: int = 0
 var segundo_anterior: int = -1
 
-# Variables Pedir ayuda
+# Variables para la solicitud de auxilio por radio
 var ayuda_usada: bool = false
 var tiempo_espera_ayuda: float = -1.0
 
@@ -44,7 +45,7 @@ func _ready() -> void:
 		if "tasa_generacion" in p:
 			p.tasa_generacion = 1.0
 	
-	# Inicializar luces
+	# Inicializar iluminacion
 	if luz_principal:
 		luz_principal.visible = true
 	if luz_emergencia:
@@ -70,13 +71,27 @@ func _physics_process(delta: float) -> void:
 	if seg_entero != segundo_anterior:
 		segundo_anterior = seg_entero
 		segundo_actualizado.emit(tiempo_restante)
-		# Registro en consola cada 10 segundos
+		
+		# Registro periodico en consola
 		if seg_entero % 10 == 0:
 			var m = seg_entero / 60
 			var s = seg_entero % 60
 			print("[TURNO %02d:%02d] Tasa: %.1f°/s | Integridad: %.0f%% | Vida: %.0f" % [m, s, tasa_base_calor, integridad, vida])
 	
-	#  Escalada de calor por cada minuto completado (1.0 / 1.2 / 1.4 / 1.6 / 1.8)
+	# Actualizar el reloj diegetico de pared
+	if etiqueta_reloj != null:
+		var min_reloj = int(tiempo_restante) / 60
+		var seg_reloj = int(tiempo_restante) % 60
+		etiqueta_reloj.text = "%02d:%02d" % [min_reloj, seg_reloj]
+		
+		# Parpadeo en color rojo en los ultimos 30 segundos
+		if tiempo_restante <= 30.0 and tiempo_restante > 0.0:
+			var parpadeo = int(tiempo_restante * 4.0) % 2 == 0
+			etiqueta_reloj.modulate = Color(0.95, 0.2, 0.2) if parpadeo else Color(0.2, 0.05, 0.05)
+		else:
+			etiqueta_reloj.modulate = Color(0.9, 0.95, 1.0)
+	
+	# Escalada progresiva de calor por cada minuto completado
 	var tiempo_transcurrido = DURACION_PARTIDA - tiempo_restante
 	var min_transcurrido = int(tiempo_transcurrido / 60.0)
 	if min_transcurrido != minuto_actual and min_transcurrido < 5:
@@ -88,20 +103,20 @@ func _physics_process(delta: float) -> void:
 		minuto_cambiado.emit(minuto_actual, tasa_base_calor)
 		print(">>> ALERTA DE CARGA: Minuto %d. La tasa de calor sube a %.1f°/s <<<" % [minuto_actual, tasa_base_calor])
 	
-	# Efecto Soporte Vital apagado -> pierde 1 punto de vida por segundo
+	# Efecto de Soporte Vital caido: asfixia progresiva
 	if _panel_esta_apagado("SoporteVital"):
 		aplicar_danio_vida(1.0 * delta)
 		if Engine.get_physics_frames() % 120 == 0:
-			print("[PELIGRO] Soporte Vital apagado. Asfixia: Vida restante: %.0f" % vida)
+			print("[PELIGRO] Soporte Vital caido. Asfixia: Vida restante: %.0f" % vida)
 	
-	#  Conteo regresivo para el soplado de ayuda (5 segundos)
+	# Conteo regresivo para el soplado de auxilio
 	if tiempo_espera_ayuda > 0.0:
 		tiempo_espera_ayuda -= delta
 		if tiempo_espera_ayuda <= 0.0:
 			tiempo_espera_ayuda = -1.0
 			_ejecutar_soplado_ayuda()
 	
-	# Victoria al sobrevivir 300 s con Vida > 0 e Integridad > 0
+	# Condicion de victoria al sobrevivir el tiempo completo
 	if tiempo_restante <= 0.0:
 		tiempo_restante = 0.0
 		_finalizar_partida(true, "Reinicio completado")
@@ -110,9 +125,9 @@ func _on_panel_apagado(panel: Node) -> void:
 	integridad -= PENALIZACION_APAGADO
 	integridad = maxf(integridad, 0.0)
 	integridad_cambiada.emit(integridad)
-	print(">>> ¡FALLO DE SISTEMA! %s colapsó. Integridad restante: %.0f%% <<<" % [panel.name, integridad])
+	print(">>> ¡FALLO DE SISTEMA! %s colapso. Integridad restante: %.0f%% <<<" % [panel.name, integridad])
 	
-	# Efecto Energía apagada -> sala en penumbra con luz roja de emergencia
+	# Efecto de perdida de energia en la sala
 	if panel.name == "Energia":
 		if luz_principal:
 			luz_principal.visible = false
@@ -120,29 +135,29 @@ func _on_panel_apagado(panel: Node) -> void:
 			luz_emergencia.visible = true
 		print(">>> [ALERTA] ENERGÍA CAÍDA: Se apaga el alumbrado de la sala. Luz roja de emergencia activada. <<<")
 	
-	# Efecto Refrigeración apagada -> todos los paneles activos generan +1.0°/s extra
+	# Efecto de fallo en refrigeracion: aceleracion termica general
 	elif panel.name == "Refrigeracion":
 		for p in paneles:
 			if "tasa_extra" in p:
 				p.tasa_extra = 1.0
 		print(">>> [ALERTA] REFRIGERACIÓN CAÍDA: Todos los paneles generan +1.0°C/s de calor extra! <<<")
 	
-	#  Efecto Comunicaciones apagadas -> los otros paneles pierden señal en diales
+	# Efecto de fallo en comunicaciones: perdida de telemetria
 	elif panel.name == "Comunicaciones":
 		for p in paneles:
 			if p != panel and "sin_senal" in p:
 				p.sin_senal = true
-				p.actualizar_texto()
+				p.actualizar_interfaz_diegética()
 		print(">>> [ALERTA] COMUNICACIONES CAÍDAS: Diales sin señal y solicitud de ayuda bloqueada. <<<")
 	
-	#  Derrota por colapso estructural (Integridad = 0%)
+	# Derrota por colapso estructural
 	if integridad <= 0.0:
 		_finalizar_partida(false, "Sala colapsada")
 
 func _on_panel_reiniciado(panel: Node) -> void:
 	print(">>> [SISTEMA] %s ha sido reactivado <<<" % panel.name)
 	
-	
+	# Restauracion de iluminacion principal
 	if panel.name == "Energia":
 		if luz_principal:
 			luz_principal.visible = true
@@ -150,23 +165,22 @@ func _on_panel_reiniciado(panel: Node) -> void:
 			luz_emergencia.visible = false
 		print(">>> [SISTEMA] ENERGÍA RESTAURADA: Alumbrado principal encendido. <<<")
 	
-	
+	# Restauracion de refrigeracion
 	elif panel.name == "Refrigeracion":
 		for p in paneles:
 			if "tasa_extra" in p:
 				p.tasa_extra = 0.0
 		print(">>> [SISTEMA] REFRIGERACIÓN RESTAURADA: Se elimina la sobretasa de calor extra. <<<")
 	
-	
+	# Restauracion de comunicaciones y telemetria
 	elif panel.name == "Comunicaciones":
 		for p in paneles:
 			if "sin_senal" in p:
 				p.sin_senal = false
-				p.actualizar_texto()
+				p.actualizar_interfaz_diegética()
 		print(">>> [SISTEMA] COMUNICACIONES RESTAURADAS: Señal en diales recuperada. <<<")
 
 func solicitar_ayuda() -> bool:
-	
 	if estado_partida != EstadoPartida.JUGANDO:
 		return false
 	
@@ -184,11 +198,11 @@ func solicitar_ayuda() -> bool:
 	return true
 
 func _ejecutar_soplado_ayuda() -> void:
-	
+	# Enfriamiento simultaneo de todos los paneles activos
 	for p in paneles:
 		if "apagado" in p and not p.apagado:
 			p.calor = maxf(0.0, p.calor - 20.0)
-			p.actualizar_texto()
+			p.actualizar_interfaz_diegética()
 	print(">>> [RADIO] ¡SOPLADO DE EMERGENCIA RECIBIDO! Todos los paneles encendidos bajan 20°C de calor. <<<")
 
 func aplicar_danio_vida(cantidad: float) -> void:
@@ -215,7 +229,7 @@ func _finalizar_partida(victoria: bool, motivo: String) -> void:
 		if "apagado" in p and not p.apagado:
 			paneles_activos += 1
 	
-	
+	# Calculo del puntaje final ponderado
 	puntaje_final = int((integridad * 10.0) + (vida * 5.0) + (paneles_activos * 100.0))
 	partida_terminada.emit(victoria, motivo, puntaje_final)
 	

@@ -6,63 +6,90 @@ signal calor_cambiado(nuevo_calor: float)
 
 @export var calor: float = 30.0
 @export var tasa_generacion: float = 1.0
+@export var icono: String = ""
+@export var nombre_sistema: String = ""
 
-var tasa_extra: float = 0.0 # M7: +1.0 cuando Refrigeración está apagada
+var tasa_extra: float = 0.0
 var apagado: bool = false
-var sin_senal: bool = false #  Diales congelados cuando Comunicaciones está apagada
+var sin_senal: bool = false
 
-@onready var texto: Label3D = $Label3D
+@onready var texto: Label3D = get_node_or_null("Consola/Label3D")
+@onready var aguja: Node3D = get_node_or_null("Consola/Dial/AgujaPivot")
+@onready var luz_led: OmniLight3D = get_node_or_null("Consola/LuzLED")
+
+# Angulos limites para el recorrido de la aguja analogica (grados)
+const ANGULO_MIN_AGUJA: float = 75.0   # 0 grados de calor (izquierda)
+const ANGULO_MAX_AGUJA: float = -75.0  # 100 grados de calor (derecha)
 
 func _ready() -> void:
-	actualizar_texto()
+	if nombre_sistema == "":
+		nombre_sistema = name
+	actualizar_interfaz_diegética()
 
 func _physics_process(delta: float) -> void:
 	if not apagado:
-		#  Generación de calor base + sobretasa de refrigeración
+		# Generacion continua de calor combinando tasa base y sobretasa termica
 		calor += (tasa_generacion + tasa_extra) * delta
 		if calor >= 100.0:
 			calor = 100.0
 			apagado = true
 			panel_apagado.emit(self)
-		actualizar_texto()
+		actualizar_interfaz_diegética()
 		calor_cambiado.emit(calor)
 
 func enfriar(delta: float) -> void:
-	# Enfriamiento de 5 por segundo mientras esté encendido
+	# Enfriamiento sostenido manual mientras el sistema continue encendido
 	if apagado:
 		return
 	calor -= 5.0 * delta
 	if calor < 0.0:
 		calor = 0.0
-	actualizar_texto()
+	actualizar_interfaz_diegética()
 	calor_cambiado.emit(calor)
 
 func reiniciar() -> void:
-	#  Reinicio de panel a 60° tras mantener E durante 4 segundos
+	# Reactivacion manual del sistema encendiendose a temperatura de seguridad
 	if not apagado:
 		return
 	apagado = false
 	calor = 60.0
-	actualizar_texto()
+	actualizar_interfaz_diegética()
 	panel_reiniciado.emit(self)
-	print(">>> ¡SISTEMA RESTAURADO! %s ha sido reiniciado a 60°C <<<" % name)
+	print(">>> SISTEMA RESTAURADO: %s reiniciado a 60°C <<<" % nombre_sistema)
 
-func actualizar_texto() -> void:
-	if texto == null:
-		return
+func actualizar_interfaz_diegética() -> void:
+	# Movimiento de la aguja mecanica en el dial analogico
+	if aguja != null and not sin_senal:
+		var factor = clampf(calor / 100.0, 0.0, 1.0)
+		var angulo_z = lerpf(ANGULO_MIN_AGUJA, ANGULO_MAX_AGUJA, factor)
+		aguja.rotation_degrees.z = angulo_z
 	
+	# Color de la senal luminica e indicador de advertencia
+	var color_estado: Color
 	if apagado:
-		texto.text = "%s\nAPAGADO (100°)\n[Mantén E para reiniciar]" % name
-		texto.modulate = Color(0.85, 0.15, 0.15)
+		color_estado = Color(0.85, 0.15, 0.15) # Rojo critico oscuro
 	elif sin_senal:
-		# Pérdida de señal cuando Comunicaciones cae
-		texto.text = "%s\n[SIN SEÑAL]" % name
-		texto.modulate = Color(0.5, 0.5, 0.5)
+		color_estado = Color(0.45, 0.45, 0.45) # Gris sin senal
+	elif calor >= 90.0:
+		color_estado = Color(0.84, 0.23, 0.23) # Rojo critico
+	elif calor >= 50.0:
+		color_estado = Color(0.9, 0.49, 0.13)  # Naranja advertencia
 	else:
-		texto.text = "%s\n%.1f°C" % [name, calor]
-		if calor >= 90.0:
-			texto.modulate = Color.RED
-		elif calor >= 50.0:
-			texto.modulate = Color.ORANGE
+		color_estado = Color(0.18, 0.8, 0.44)  # Verde optimo
+	
+	if luz_led != null:
+		luz_led.light_color = color_estado
+		luz_led.light_energy = 0.15 if sin_senal else (0.8 if calor >= 90.0 else 0.45)
+	
+	# Pantalla de informacion diegetica del panel
+	if texto != null:
+		var cabecera = "%s %s" % [icono, nombre_sistema]
+		if apagado:
+			texto.text = "%s\nAPAGADO (100°)\n[Mantén E para reiniciar]" % cabecera
+			texto.modulate = Color(0.9, 0.2, 0.2)
+		elif sin_senal:
+			texto.text = "%s\n[SIN SEÑAL]" % cabecera
+			texto.modulate = Color(0.55, 0.55, 0.55)
 		else:
-			texto.modulate = Color.GREEN
+			texto.text = "%s\n%.1f°C" % [cabecera, calor]
+			texto.modulate = color_estado
