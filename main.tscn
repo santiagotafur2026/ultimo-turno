@@ -6,6 +6,13 @@
 [ext_resource type="Script" uid="uid://c5toiubar7f8n" path="res://interactuar.gd" id="4_lquwl"]
 [ext_resource type="Script" uid="uid://c80mojbxmjab1" path="res://PANEL.gd" id="5_272bh"]
 [ext_resource type="Script" uid="uid://b4vsarubpe0rt" path="res://game_manager.gd" id="6_7mycd"]
+[ext_resource type="Script" path="res://alarma.gd" id="10_alarma"]
+
+[sub_resource type="Environment" id="Environment_Interior"]
+ambient_light_source = 2
+ambient_light_color = Color(0.12, 0.14, 0.16, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 2
 
 [sub_resource type="StandardMaterial3D" id="Material_Estructura"]
 albedo_color = Color(0.24, 0.26, 0.28, 1)
@@ -33,13 +40,28 @@ size = Vector3(0.2, 3.2, 6.2)
 [sub_resource type="BoxShape3D" id="Shape_ParedX"]
 size = Vector3(0.2, 3.2, 6.2)
 
+[sub_resource type="StandardMaterial3D" id="Material_RelojMarco"]
+albedo_color = Color(0.1, 0.12, 0.14, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="Mesh_RelojMarco"]
+material = SubResource("Material_RelojMarco")
+size = Vector3(1.5, 0.55, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="Material_RelojFondo"]
+albedo_color = Color(0.04, 0.05, 0.06, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_RelojFondo"]
+material = SubResource("Material_RelojFondo")
+size = Vector3(1.4, 0.45, 0.09)
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r6318"]
 radius = 0.35
 height = 1.75
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_uxa2c"]
 radius = 0.35
-height = 1.75
+height = 1.0
 
 [sub_resource type="Animation" id="Animation_7dm0k"]
 resource_name = "idle"
@@ -98,27 +120,6 @@ emission_energy_multiplier = 0.6
 material = SubResource("Material_Aguja")
 size = Vector3(0.015, 0.14, 0.01)
 
-[sub_resource type="StandardMaterial3D" id="Material_RelojMarco"]
-albedo_color = Color(0.1, 0.12, 0.14, 1)
-roughness = 0.5
-
-[sub_resource type="BoxMesh" id="Mesh_RelojMarco"]
-material = SubResource("Material_RelojMarco")
-size = Vector3(1.5, 0.55, 0.08)
-
-[sub_resource type="StandardMaterial3D" id="Material_RelojFondo"]
-albedo_color = Color(0.04, 0.05, 0.06, 1)
-
-[sub_resource type="BoxMesh" id="Mesh_RelojFondo"]
-material = SubResource("Material_RelojFondo")
-size = Vector3(1.4, 0.45, 0.09)
-
-[sub_resource type="Environment" id="Environment_Interior"]
-ambient_light_source = 2
-ambient_light_color = Color(0.12, 0.14, 0.16, 1)
-ambient_light_energy = 0.35
-tonemap_mode = 2
-
 [node name="Main" type="Node3D" unique_id=1245618563]
 script = ExtResource("1_ig7tw")
 
@@ -149,57 +150,57 @@ mesh = SubResource("Mesh_Suelo")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 shape = SubResource("Shape_Suelo")
 
-[node name="Techo" type="MeshInstance3D" parent="SalaControl"]
+[node name="Techo" type="MeshInstance3D" parent="SalaControl" unique_id=1590328800]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1, 0)
 mesh = SubResource("Mesh_Suelo")
 
-[node name="ColisionTecho" type="CollisionShape3D" parent="SalaControl"]
+[node name="ColisionTecho" type="CollisionShape3D" parent="SalaControl" unique_id=835050366]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1, 0)
 shape = SubResource("Shape_Suelo")
 
-[node name="ParedNorte" type="MeshInstance3D" parent="SalaControl"]
+[node name="ParedNorte" type="MeshInstance3D" parent="SalaControl" unique_id=986185237]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -3.1)
 mesh = SubResource("Mesh_ParedZ")
 
-[node name="ColisionParedNorte" type="CollisionShape3D" parent="SalaControl"]
+[node name="ColisionParedNorte" type="CollisionShape3D" parent="SalaControl" unique_id=764151962]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -3.1)
 shape = SubResource("Shape_ParedZ")
 
-[node name="ParedSur" type="MeshInstance3D" parent="SalaControl"]
+[node name="ParedSur" type="MeshInstance3D" parent="SalaControl" unique_id=1561226188]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 3.1)
 mesh = SubResource("Mesh_ParedZ")
 
-[node name="ColisionParedSur" type="CollisionShape3D" parent="SalaControl"]
+[node name="ColisionParedSur" type="CollisionShape3D" parent="SalaControl" unique_id=1005744321]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 3.1)
 shape = SubResource("Shape_ParedZ")
 
-[node name="ParedOeste" type="MeshInstance3D" parent="SalaControl"]
+[node name="ParedOeste" type="MeshInstance3D" parent="SalaControl" unique_id=1022895847]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.1, 1.5, 0)
 mesh = SubResource("Mesh_ParedX")
 
-[node name="ColisionParedOeste" type="CollisionShape3D" parent="SalaControl"]
+[node name="ColisionParedOeste" type="CollisionShape3D" parent="SalaControl" unique_id=460586481]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.1, 1.5, 0)
 shape = SubResource("Shape_ParedX")
 
-[node name="ParedEste" type="MeshInstance3D" parent="SalaControl"]
+[node name="ParedEste" type="MeshInstance3D" parent="SalaControl" unique_id=1536840185]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1, 1.5, 0)
 mesh = SubResource("Mesh_ParedX")
 
-[node name="ColisionParedEste" type="CollisionShape3D" parent="SalaControl"]
+[node name="ColisionParedEste" type="CollisionShape3D" parent="SalaControl" unique_id=382901295]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1, 1.5, 0)
 shape = SubResource("Shape_ParedX")
 
-[node name="RelojPared" type="Node3D" parent="."]
+[node name="RelojPared" type="Node3D" parent="." unique_id=238167588]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, -2.95)
 
-[node name="Marco" type="MeshInstance3D" parent="RelojPared"]
+[node name="Marco" type="MeshInstance3D" parent="RelojPared" unique_id=1320599081]
 mesh = SubResource("Mesh_RelojMarco")
 
-[node name="Fondo" type="MeshInstance3D" parent="RelojPared"]
+[node name="Fondo" type="MeshInstance3D" parent="RelojPared" unique_id=526390843]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.01)
 mesh = SubResource("Mesh_RelojFondo")
 
-[node name="Label3D" type="Label3D" parent="RelojPared"]
+[node name="Label3D" type="Label3D" parent="RelojPared" unique_id=712623376]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.06)
 modulate = Color(0.9, 0.95, 1, 1)
 text = "05:00"
@@ -207,9 +208,8 @@ font_size = 52
 outline_size = 8
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=733500645 node_paths=PackedStringArray("objetivo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4322137, 0)
 current = true
-fov = 75.0
 script = ExtResource("2_h2yge")
 objetivo = NodePath("../Personaje")
 
@@ -217,7 +217,6 @@ objetivo = NodePath("../Personaje")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, 0)
 script = ExtResource("2_0xm2m")
 camara = NodePath("../Camera3D")
-speed_caminar = 2.0
 tiempo_arranque = 0.3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Personaje" unique_id=649337984]
@@ -237,39 +236,40 @@ script = ExtResource("4_lquwl")
 [node name="Energia" type="StaticBody3D" parent="." unique_id=1993623720 groups=["interactivos", "paneles"]]
 transform = Transform3D(0.7071068, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, 0.7071068, -2.1, 0, -2.1)
 script = ExtResource("5_272bh")
-calor = 30.0
+tasa_generacion = 5.0
 icono = "⚡"
 nombre_sistema = "ENERGÍA"
+frecuencia_alarma = 180.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Energia" unique_id=1294699092]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 shape = SubResource("Shape_PanelColision")
 
-[node name="Consola" type="Node3D" parent="Energia"]
+[node name="Consola" type="Node3D" parent="Energia" unique_id=256035858]
 
-[node name="Mesa" type="MeshInstance3D" parent="Energia/Consola"]
+[node name="Mesa" type="MeshInstance3D" parent="Energia/Consola" unique_id=1327276470]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 mesh = SubResource("Mesh_MesaConsola")
 
-[node name="Tablero" type="MeshInstance3D" parent="Energia/Consola"]
+[node name="Tablero" type="MeshInstance3D" parent="Energia/Consola" unique_id=1635956007]
 transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.3420201, 0, -0.3420201, 0.9396926, 0, 0.95, -0.05)
 mesh = SubResource("Mesh_Tablero")
 
-[node name="Dial" type="Node3D" parent="Energia/Consola"]
+[node name="Dial" type="Node3D" parent="Energia/Consola" unique_id=1178907722]
 transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.3420201, 0, -0.3420201, 0.9396926, 0, 1.05, 0.12)
 
-[node name="Placa" type="MeshInstance3D" parent="Energia/Consola/Dial"]
+[node name="Placa" type="MeshInstance3D" parent="Energia/Consola/Dial" unique_id=1561380974]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
 mesh = SubResource("Mesh_DialFondo")
 
-[node name="AgujaPivot" type="Node3D" parent="Energia/Consola/Dial"]
+[node name="AgujaPivot" type="Node3D" parent="Energia/Consola/Dial" unique_id=1456342432]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
 
-[node name="AgujaMesh" type="MeshInstance3D" parent="Energia/Consola/Dial/AgujaPivot"]
+[node name="AgujaMesh" type="MeshInstance3D" parent="Energia/Consola/Dial/AgujaPivot" unique_id=1645158262]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
 mesh = SubResource("Mesh_Aguja")
 
-[node name="LuzLED" type="OmniLight3D" parent="Energia/Consola"]
+[node name="LuzLED" type="OmniLight3D" parent="Energia/Consola" unique_id=1482288781]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0.15)
 light_color = Color(0.18, 0.8, 0.44, 1)
 light_energy = 0.5
@@ -282,10 +282,15 @@ text = "⚡ ENERGÍA
 30.0°C"
 font_size = 28
 
+[node name="Alarma" type="Node" parent="Energia"]
+script = ExtResource("10_alarma")
+frecuencia_base = 180.0
+
 [node name="Refrigeracion" type="StaticBody3D" parent="." unique_id=961389470 groups=["interactivos", "paneles"]]
 transform = Transform3D(0.7071068, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, 0.7071068, 2.1, 0, -2.1)
 script = ExtResource("5_272bh")
 calor = 50.0
+tasa_generacion = 0.5
 icono = "❄"
 nombre_sistema = "REFRIGERACIÓN"
 
@@ -293,31 +298,31 @@ nombre_sistema = "REFRIGERACIÓN"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 shape = SubResource("Shape_PanelColision")
 
-[node name="Consola" type="Node3D" parent="Refrigeracion"]
+[node name="Consola" type="Node3D" parent="Refrigeracion" unique_id=2121272264]
 
-[node name="Mesa" type="MeshInstance3D" parent="Refrigeracion/Consola"]
+[node name="Mesa" type="MeshInstance3D" parent="Refrigeracion/Consola" unique_id=442677713]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 mesh = SubResource("Mesh_MesaConsola")
 
-[node name="Tablero" type="MeshInstance3D" parent="Refrigeracion/Consola"]
+[node name="Tablero" type="MeshInstance3D" parent="Refrigeracion/Consola" unique_id=351366323]
 transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.3420201, 0, -0.3420201, 0.9396926, 0, 0.95, -0.05)
 mesh = SubResource("Mesh_Tablero")
 
-[node name="Dial" type="Node3D" parent="Refrigeracion/Consola"]
+[node name="Dial" type="Node3D" parent="Refrigeracion/Consola" unique_id=855394108]
 transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.3420201, 0, -0.3420201, 0.9396926, 0, 1.05, 0.12)
 
-[node name="Placa" type="MeshInstance3D" parent="Refrigeracion/Consola/Dial"]
+[node name="Placa" type="MeshInstance3D" parent="Refrigeracion/Consola/Dial" unique_id=1842198704]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
 mesh = SubResource("Mesh_DialFondo")
 
-[node name="AgujaPivot" type="Node3D" parent="Refrigeracion/Consola/Dial"]
+[node name="AgujaPivot" type="Node3D" parent="Refrigeracion/Consola/Dial" unique_id=796304659]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
 
-[node name="AgujaMesh" type="MeshInstance3D" parent="Refrigeracion/Consola/Dial/AgujaPivot"]
+[node name="AgujaMesh" type="MeshInstance3D" parent="Refrigeracion/Consola/Dial/AgujaPivot" unique_id=1304147808]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
 mesh = SubResource("Mesh_Aguja")
 
-[node name="LuzLED" type="OmniLight3D" parent="Refrigeracion/Consola"]
+[node name="LuzLED" type="OmniLight3D" parent="Refrigeracion/Consola" unique_id=1093315549]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0.15)
 light_color = Color(0.9, 0.49, 0.13, 1)
 light_energy = 0.5
@@ -330,10 +335,15 @@ text = "❄ REFRIGERACIÓN
 50.0°C"
 font_size = 28
 
+[node name="Alarma" type="Node" parent="Refrigeracion"]
+script = ExtResource("10_alarma")
+frecuencia_base = 330.0
+
 [node name="Comunicaciones" type="StaticBody3D" parent="." unique_id=1313676543 groups=["interactivos", "paneles"]]
 transform = Transform3D(-0.7071068, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, -0.7071068, 2.1, 0, 2.1)
 script = ExtResource("5_272bh")
 calor = 35.0
+tasa_generacion = 0.5
 icono = "📡"
 nombre_sistema = "COMUNICACIONES"
 
@@ -341,31 +351,31 @@ nombre_sistema = "COMUNICACIONES"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 shape = SubResource("Shape_PanelColision")
 
-[node name="Consola" type="Node3D" parent="Comunicaciones"]
+[node name="Consola" type="Node3D" parent="Comunicaciones" unique_id=1499417282]
 
-[node name="Mesa" type="MeshInstance3D" parent="Comunicaciones/Consola"]
+[node name="Mesa" type="MeshInstance3D" parent="Comunicaciones/Consola" unique_id=700576295]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 mesh = SubResource("Mesh_MesaConsola")
 
-[node name="Tablero" type="MeshInstance3D" parent="Comunicaciones/Consola"]
+[node name="Tablero" type="MeshInstance3D" parent="Comunicaciones/Consola" unique_id=1764824376]
 transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.3420201, 0, -0.3420201, 0.9396926, 0, 0.95, -0.05)
 mesh = SubResource("Mesh_Tablero")
 
-[node name="Dial" type="Node3D" parent="Comunicaciones/Consola"]
+[node name="Dial" type="Node3D" parent="Comunicaciones/Consola" unique_id=1004797532]
 transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.3420201, 0, -0.3420201, 0.9396926, 0, 1.05, 0.12)
 
-[node name="Placa" type="MeshInstance3D" parent="Comunicaciones/Consola/Dial"]
+[node name="Placa" type="MeshInstance3D" parent="Comunicaciones/Consola/Dial" unique_id=2138428876]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
 mesh = SubResource("Mesh_DialFondo")
 
-[node name="AgujaPivot" type="Node3D" parent="Comunicaciones/Consola/Dial"]
+[node name="AgujaPivot" type="Node3D" parent="Comunicaciones/Consola/Dial" unique_id=375247458]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
 
-[node name="AgujaMesh" type="MeshInstance3D" parent="Comunicaciones/Consola/Dial/AgujaPivot"]
+[node name="AgujaMesh" type="MeshInstance3D" parent="Comunicaciones/Consola/Dial/AgujaPivot" unique_id=1736603988]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
 mesh = SubResource("Mesh_Aguja")
 
-[node name="LuzLED" type="OmniLight3D" parent="Comunicaciones/Consola"]
+[node name="LuzLED" type="OmniLight3D" parent="Comunicaciones/Consola" unique_id=1520624618]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0.15)
 light_color = Color(0.18, 0.8, 0.44, 1)
 light_energy = 0.5
@@ -378,10 +388,15 @@ text = "📡 COMUNICACIONES
 35.0°C"
 font_size = 28
 
+[node name="Alarma" type="Node" parent="Comunicaciones"]
+script = ExtResource("10_alarma")
+frecuencia_base = 520.0
+
 [node name="SoporteVital" type="StaticBody3D" parent="." unique_id=368436904 groups=["interactivos", "paneles"]]
 transform = Transform3D(-0.7071068, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, -0.7071068, -2.1, 0, 2.1)
 script = ExtResource("5_272bh")
 calor = 40.0
+tasa_generacion = 0.5
 icono = "🫁"
 nombre_sistema = "SOPORTE VITAL"
 
@@ -389,31 +404,31 @@ nombre_sistema = "SOPORTE VITAL"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 shape = SubResource("Shape_PanelColision")
 
-[node name="Consola" type="Node3D" parent="SoporteVital"]
+[node name="Consola" type="Node3D" parent="SoporteVital" unique_id=146682065]
 
-[node name="Mesa" type="MeshInstance3D" parent="SoporteVital/Consola"]
+[node name="Mesa" type="MeshInstance3D" parent="SoporteVital/Consola" unique_id=574062650]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 mesh = SubResource("Mesh_MesaConsola")
 
-[node name="Tablero" type="MeshInstance3D" parent="SoporteVital/Consola"]
+[node name="Tablero" type="MeshInstance3D" parent="SoporteVital/Consola" unique_id=523461288]
 transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.3420201, 0, -0.3420201, 0.9396926, 0, 0.95, -0.05)
 mesh = SubResource("Mesh_Tablero")
 
-[node name="Dial" type="Node3D" parent="SoporteVital/Consola"]
+[node name="Dial" type="Node3D" parent="SoporteVital/Consola" unique_id=1109259311]
 transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.3420201, 0, -0.3420201, 0.9396926, 0, 1.05, 0.12)
 
-[node name="Placa" type="MeshInstance3D" parent="SoporteVital/Consola/Dial"]
+[node name="Placa" type="MeshInstance3D" parent="SoporteVital/Consola/Dial" unique_id=945904103]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
 mesh = SubResource("Mesh_DialFondo")
 
-[node name="AgujaPivot" type="Node3D" parent="SoporteVital/Consola/Dial"]
+[node name="AgujaPivot" type="Node3D" parent="SoporteVital/Consola/Dial" unique_id=85405805]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
 
-[node name="AgujaMesh" type="MeshInstance3D" parent="SoporteVital/Consola/Dial/AgujaPivot"]
+[node name="AgujaMesh" type="MeshInstance3D" parent="SoporteVital/Consola/Dial/AgujaPivot" unique_id=1552320059]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
 mesh = SubResource("Mesh_Aguja")
 
-[node name="LuzLED" type="OmniLight3D" parent="SoporteVital/Consola"]
+[node name="LuzLED" type="OmniLight3D" parent="SoporteVital/Consola" unique_id=129555065]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0.15)
 light_color = Color(0.18, 0.8, 0.44, 1)
 light_energy = 0.5
@@ -425,6 +440,10 @@ billboard = 1
 text = "🫁 SOPORTE VITAL
 40.0°C"
 font_size = 28
+
+[node name="Alarma" type="Node" parent="SoporteVital"]
+script = ExtResource("10_alarma")
+frecuencia_base = 660.0
 
 [node name="GameManager" type="Node" parent="." unique_id=1002874929 node_paths=PackedStringArray("luz_principal", "luz_emergencia", "etiqueta_reloj")]
 script = ExtResource("6_7mycd")

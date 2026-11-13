@@ -1,0 +1,119 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tutorial.gd" id="1_tutorial"]
+[ext_resource type="Script" path="res://tutorial_ilustracion.gd" id="2_ilustracion"]
+
+[node name="Tutorial" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tutorial")
+
+[node name="Fondo" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.06, 1)
+
+[node name="Centro" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Tarjeta" type="PanelContainer" parent="Centro"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(960, 580)
+layout_mode = 2
+
+[node name="Margen" type="MarginContainer" parent="Centro/Tarjeta"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="Caja" type="VBoxContainer" parent="Centro/Tarjeta/Margen"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Cabecera" type="HBoxContainer" parent="Centro/Tarjeta/Margen/Caja"]
+layout_mode = 2
+
+[node name="EtiquetaPaso" type="Label" parent="Centro/Tarjeta/Margen/Caja/Cabecera"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+text = "PASO 1 / 9"
+
+[node name="Espaciador" type="Control" parent="Centro/Tarjeta/Margen/Caja/Cabecera"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BotonOmitir" type="Button" parent="Centro/Tarjeta/Margen/Caja/Cabecera"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Omitir tutorial"
+
+[node name="Titulo" type="Label" parent="Centro/Tarjeta/Margen/Caja"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Bienvenida"
+
+[node name="Separador" type="HSeparator" parent="Centro/Tarjeta/Margen/Caja"]
+layout_mode = 2
+
+[node name="Contenido" type="HBoxContainer" parent="Centro/Tarjeta/Margen/Caja"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="Ilustracion" type="Control" parent="Centro/Tarjeta/Margen/Caja/Contenido"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(340, 300)
+layout_mode = 2
+script = ExtResource("2_ilustracion")
+
+[node name="Texto" type="RichTextLabel" parent="Centro/Tarjeta/Margen/Caja/Contenido"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+text = "Texto del paso"
+
+[node name="Puntos" type="HBoxContainer" parent="Centro/Tarjeta/Margen/Caja"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="Navegacion" type="HBoxContainer" parent="Centro/Tarjeta/Margen/Caja"]
+layout_mode = 2
+
+[node name="BotonAnterior" type="Button" parent="Centro/Tarjeta/Margen/Caja/Navegacion"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Anterior"
+
+[node name="Espaciador" type="Control" parent="Centro/Tarjeta/Margen/Caja/Navegacion"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BotonSiguiente" type="Button" parent="Centro/Tarjeta/Margen/Caja/Navegacion"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Siguiente"
+
+[node name="BotonComenzar" type="Button" parent="Centro/Tarjeta/Margen/Caja/Navegacion"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Comenzar partida"

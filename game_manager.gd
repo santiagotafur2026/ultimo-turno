@@ -43,7 +43,7 @@ func _ready() -> void:
 		if p.has_signal("panel_reiniciado"):
 			p.panel_reiniciado.connect(_on_panel_reiniciado)
 		if "tasa_generacion" in p:
-			p.tasa_generacion = 1.0
+			p.tasa_generacion = 0.7
 	
 	# Inicializar iluminacion
 	if luz_principal:
@@ -96,7 +96,7 @@ func _physics_process(delta: float) -> void:
 	var min_transcurrido = int(tiempo_transcurrido / 60.0)
 	if min_transcurrido != minuto_actual and min_transcurrido < 5:
 		minuto_actual = min_transcurrido
-		tasa_base_calor = 1.0 + (minuto_actual * 0.2)
+		tasa_base_calor = 1.0 + (minuto_actual * 0.3)
 		for p in paneles:
 			if "tasa_generacion" in p:
 				p.tasa_generacion = tasa_base_calor
@@ -105,7 +105,7 @@ func _physics_process(delta: float) -> void:
 	
 	# Efecto de Soporte Vital caido: asfixia progresiva
 	if _panel_esta_apagado("SoporteVital"):
-		aplicar_danio_vida(1.0 * delta)
+		aplicar_danio_vida(2.0 * delta)
 		if Engine.get_physics_frames() % 120 == 0:
 			print("[PELIGRO] Soporte Vital caido. Asfixia: Vida restante: %.0f" % vida)
 	
