@@ -15,6 +15,8 @@ func _ready():
 	_registrar("pedir_ayuda", [KEY_F])
 	_registrar("pausa", [KEY_ESCAPE])
 	_registrar("reintentar", [KEY_ENTER, KEY_KP_ENTER])
+	_registrar("golpe_critico", [KEY_SPACE])
+	_registrar("usar_herramienta", [KEY_Q])
 
 func _registrar(nombre: String, teclas: Array):
 	if InputMap.has_action(nombre):

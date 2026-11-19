@@ -166,7 +166,7 @@ func _construir_pasos() -> void:
 			"texto": "[b]Colores del panel:[/b]\n"
 				+ V + "verde" + FIN + " menos de 50° · " + N + "naranja" + FIN + " desde 50° · " + R + "rojo" + FIN + " desde 90° (el LED parpadea).\n\n"
 				+ "[b]Enfriar:[/b] debes estar [b]muy cerca[/b] de un panel encendido. Solo afecta al panel más cercano.\n\n"
-				+ "[b]Reiniciar:[/b] cerca de un panel apagado, mantén [b]E[/b] durante 4 segundos. Vuelve a funcionar a 60°.\n\n"
+				+ "[b]Reiniciar:[/b] cerca de un panel apagado, mantén [b]E[/b] durante 2 segundos. Vuelve a funcionar a 35°.\n\n"
 				+ "[b]Alarmas:[/b] cada panel emite un sonido desde los 70°, más fuerte cuanto más se calienta.",
 		},
 		{

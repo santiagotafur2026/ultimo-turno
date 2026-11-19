@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://but8wvuxxs8mb" path="res://alarma.gd" id="10_alarma"]
 [ext_resource type="PackedScene" uid="uid://c8vjqk4pmx3b7" path="res://interfaz_guia.tscn" id="11_guia"]
 [ext_resource type="Script" uid="uid://dag3yjm27a00w" path="res://pantalla_pared.gd" id="12_pantalla"]
+[ext_resource type="Script" uid="uid://biinob21wlr2d" path="res://estacion_herramienta.gd" id="13_estacion"]
 
 [sub_resource type="Environment" id="Environment_Interior"]
 ambient_light_source = 2
@@ -77,6 +78,9 @@ emission_energy_multiplier = 0.5
 [sub_resource type="BoxMesh" id="Mesh_PantallaVidrio"]
 material = SubResource("Material_PantallaVidrio")
 size = Vector3(2.2, 1, 0.09)
+
+[sub_resource type="BoxShape3D" id="Shape_EstacionColision"]
+size = Vector3(0.5, 0.7, 0.3)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r6318"]
 radius = 0.35
@@ -277,6 +281,23 @@ text = "INTEGRIDAD DE SALA: 100%   |   NIVEL DE OXÍGENO: 100%"
 font_size = 16
 outline_size = 4
 
+[node name="EstacionLlave" type="StaticBody3D" parent="." unique_id=1437397665 groups=["estaciones_herramienta", "interactivos"]]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2.95, 1.3, 0)
+script = ExtResource("13_estacion")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EstacionLlave" unique_id=1613868341]
+shape = SubResource("Shape_EstacionColision")
+
+[node name="EstacionExtintor" type="StaticBody3D" parent="." unique_id=221837817 groups=["estaciones_herramienta", "interactivos"]]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2.95, 1.3, 0)
+script = ExtResource("13_estacion")
+tipo = 1
+nombre_item = "Extintor de CO₂"
+icono = "🧯"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EstacionExtintor" unique_id=1533955054]
+shape = SubResource("Shape_EstacionColision")
+
 [node name="Camera3D" type="Camera3D" parent="." unique_id=733500645 node_paths=PackedStringArray("objetivo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4322137, 0)
 current = true
@@ -295,6 +316,7 @@ shape = SubResource("CapsuleShape3D_r6318")
 [node name="Modelo" type="Node3D" parent="Personaje" unique_id=453985227]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Personaje/Modelo" unique_id=83264983]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.29244614, 0)
 mesh = SubResource("CapsuleMesh_uxa2c")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Personaje/Modelo" unique_id=1329586828]
@@ -306,7 +328,7 @@ script = ExtResource("4_lquwl")
 [node name="Energia" type="StaticBody3D" parent="." unique_id=1993623720 groups=["interactivos", "paneles"]]
 transform = Transform3D(0.7071068, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, 0.7071068, -2.1, 0, -2.1)
 script = ExtResource("5_272bh")
-tasa_generacion = 5.0
+calor = 50.0
 icono = "⚡"
 nombre_sistema = "ENERGÍA"
 frecuencia_alarma = 180.0
@@ -349,7 +371,7 @@ omni_range = 2.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 billboard = 1
 text = "⚡ ENERGÍA
-30.0°C"
+20.0°C"
 font_size = 28
 
 [node name="Alarma" type="Node" parent="Energia" unique_id=1718673707]
@@ -359,8 +381,7 @@ frecuencia_base = 180.0
 [node name="Refrigeracion" type="StaticBody3D" parent="." unique_id=961389470 groups=["interactivos", "paneles"]]
 transform = Transform3D(0.7071068, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, 0.7071068, 2.1, 0, -2.1)
 script = ExtResource("5_272bh")
-calor = 50.0
-tasa_generacion = 0.5
+calor = 45.0
 icono = "❄"
 nombre_sistema = "REFRIGERACIÓN"
 
@@ -394,7 +415,7 @@ mesh = SubResource("Mesh_Aguja")
 
 [node name="LuzLED" type="OmniLight3D" parent="Refrigeracion/Consola" unique_id=1093315549]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0.15)
-light_color = Color(0.9, 0.49, 0.13, 1)
+light_color = Color(0.18, 0.8, 0.44, 1)
 light_energy = 0.5
 omni_range = 2.0
 
@@ -402,7 +423,7 @@ omni_range = 2.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 billboard = 1
 text = "❄ REFRIGERACIÓN
-50.0°C"
+25.0°C"
 font_size = 28
 
 [node name="Alarma" type="Node" parent="Refrigeracion" unique_id=1749651796]
@@ -412,8 +433,7 @@ frecuencia_base = 330.0
 [node name="Comunicaciones" type="StaticBody3D" parent="." unique_id=1313676543 groups=["interactivos", "paneles"]]
 transform = Transform3D(-0.7071068, 0, 0.7071068, 0, 1, 0, -0.7071068, 0, -0.7071068, 2.1, 0, 2.1)
 script = ExtResource("5_272bh")
-calor = 35.0
-tasa_generacion = 0.5
+calor = 56.0
 icono = "📡"
 nombre_sistema = "COMUNICACIONES"
 
@@ -455,7 +475,7 @@ omni_range = 2.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 billboard = 1
 text = "📡 COMUNICACIONES
-35.0°C"
+20.0°C"
 font_size = 28
 
 [node name="Alarma" type="Node" parent="Comunicaciones" unique_id=2035842810]
@@ -465,8 +485,7 @@ frecuencia_base = 520.0
 [node name="SoporteVital" type="StaticBody3D" parent="." unique_id=368436904 groups=["interactivos", "paneles"]]
 transform = Transform3D(-0.7071068, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, -0.7071068, -2.1, 0, 2.1)
 script = ExtResource("5_272bh")
-calor = 40.0
-tasa_generacion = 0.5
+calor = 43.0
 icono = "🫁"
 nombre_sistema = "SOPORTE VITAL"
 
@@ -508,7 +527,7 @@ omni_range = 2.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 billboard = 1
 text = "🫁 SOPORTE VITAL
-40.0°C"
+25.0°C"
 font_size = 28
 
 [node name="Alarma" type="Node" parent="SoporteVital" unique_id=250525034]

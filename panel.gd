@@ -4,8 +4,8 @@ signal panel_apagado(panel: Node3D)
 signal panel_reiniciado(panel: Node3D)
 signal calor_cambiado(nuevo_calor: float)
 
-@export var calor: float = 30.0
-@export var tasa_generacion: float = 4.0
+@export var calor: float = 20.0
+@export var tasa_generacion: float = 0.7
 @export var icono: String = ""
 @export var nombre_sistema: String = ""
 @export var frecuencia_alarma: float = 440.0
@@ -13,6 +13,8 @@ signal calor_cambiado(nuevo_calor: float)
 var tasa_extra: float = 0.0
 var apagado: bool = false
 var sin_senal: bool = false
+var tiene_sanguijuela: bool = false
+var sanguijuela_instancia: SanguijuelaTermica = null
 
 @onready var texto: Label3D = get_node_or_null("Consola/Label3D")
 @onready var aguja: Node3D = get_node_or_null("Consola/Dial/AgujaPivot")
@@ -52,22 +54,43 @@ func _physics_process(delta: float) -> void:
 		_parpadear_led(delta)
 
 func enfriar(delta: float) -> void:
-	if apagado:
+	if apagado or tiene_sanguijuela:
 		return
-	calor -= 2.0 * delta
+	calor -= 8.0 * delta
 	if calor < 0.0:
 		calor = 0.0
 	actualizar_interfaz_diegética()
 	calor_cambiado.emit(calor)
 
+func adherir_sanguijuela() -> void:
+	if tiene_sanguijuela or apagado:
+		return
+	var sang := SanguijuelaTermica.new()
+	var consola = get_node_or_null("Consola")
+	if consola:
+		consola.add_child(sang)
+		sang.position = Vector3(0, 1.12, 0.12)
+	else:
+		add_child(sang)
+		sang.position = Vector3(0, 1.12, 0.12)
+	sanguijuela_instancia = sang
+	sang.destruida.connect(_on_sanguijuela_destruida)
+	sang.adherir_a_panel(self)
+	actualizar_interfaz_diegética()
+
+func _on_sanguijuela_destruida(_p: Node3D) -> void:
+	tiene_sanguijuela = false
+	sanguijuela_instancia = null
+	actualizar_interfaz_diegética()
+
 func reiniciar() -> void:
 	if not apagado:
 		return
 	apagado = false
-	calor = 60.0
+	calor = 35.0
 	actualizar_interfaz_diegética()
 	panel_reiniciado.emit(self)
-	print(">>> SISTEMA RESTAURADO: %s reiniciado a 60°C <<<" % nombre_sistema)
+	print(">>> SISTEMA RESTAURADO: %s reiniciado a 35°C <<<" % nombre_sistema)
 
 func actualizar_interfaz_diegética() -> void:
 	if aguja != null and not sin_senal:
@@ -93,7 +116,10 @@ func actualizar_interfaz_diegética() -> void:
 	
 	if texto != null:
 		var cabecera = "%s %s" % [icono, nombre_sistema]
-		if apagado:
+		if tiene_sanguijuela:
+			texto.text = "%s\n¡PARÁSITO ADHERIDO!\n[Golpea con Llave Q]" % cabecera
+			texto.modulate = Color(1.0, 0.2, 0.2)
+		elif apagado:
 			texto.text = "%s\nAPAGADO (100°)\n[Mantén E para reiniciar]" % cabecera
 			texto.modulate = Color(0.9, 0.2, 0.2)
 		elif sin_senal:

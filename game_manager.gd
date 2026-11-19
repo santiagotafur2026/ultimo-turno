@@ -5,7 +5,7 @@ enum EstadoPartida { JUGANDO, VICTORIA, DERROTA }
 const DURACION_PARTIDA: float = 300.0 # Duracion del turno en segundos (5 minutos)
 const INTEGRIDAD_INICIAL: float = 100.0
 const VIDA_INICIAL: float = 100.0
-const PENALIZACION_APAGADO: float = 20.0 # Reduccion de integridad por cada colapso
+const PENALIZACION_APAGADO: float = 15.0 # Reduccion de integridad por cada colapso (15% balanceado)
 
 signal segundo_actualizado(tiempo_restante: float)
 signal minuto_cambiado(nuevo_minuto: int, nueva_tasa: float)
@@ -31,6 +31,7 @@ var segundo_anterior: int = -1
 # Variables para la solicitud de auxilio por radio
 var ayuda_usada: bool = false
 var tiempo_espera_ayuda: float = -1.0
+var tiempo_siguiente_parasito: float = 45.0 # Primera aparicion al segundo 45
 
 func _ready() -> void:
 	add_to_group("game_manager")
@@ -96,18 +97,24 @@ func _physics_process(delta: float) -> void:
 	var min_transcurrido = int(tiempo_transcurrido / 60.0)
 	if min_transcurrido != minuto_actual and min_transcurrido < 5:
 		minuto_actual = min_transcurrido
-		tasa_base_calor = 1.0 + (minuto_actual * 0.3)
+		# Progresión balanceada: Min 0: 0.30, Min 1: 0.45, Min 2: 0.65, Min 3: 0.90, Min 4: 1.20
+		var tasas_minuto = [0.30, 0.45, 0.65, 0.90, 1.20]
+		tasa_base_calor = tasas_minuto[clampi(minuto_actual, 0, 4)]
 		for p in paneles:
 			if "tasa_generacion" in p:
 				p.tasa_generacion = tasa_base_calor
 		minuto_cambiado.emit(minuto_actual, tasa_base_calor)
-		print(">>> ALERTA DE CARGA: Minuto %d. La tasa de calor sube a %.1f°/s <<<" % [minuto_actual, tasa_base_calor])
+		print(">>> ALERTA DE CARGA: Minuto %d. La tasa de calor sube a %.2f°/s <<<" % [minuto_actual, tasa_base_calor])
 	
-	# Efecto de Soporte Vital caido: asfixia progresiva
+	# Efecto de Soporte Vital: asfixia si cae, o recuperación paulatina si está sano
 	if _panel_esta_apagado("SoporteVital"):
-		aplicar_danio_vida(2.0 * delta)
+		aplicar_danio_vida(1.0 * delta)
 		if Engine.get_physics_frames() % 120 == 0:
 			print("[PELIGRO] Soporte Vital caido. Asfixia: Vida restante: %.0f" % vida)
+	else:
+		if vida < VIDA_INICIAL:
+			vida = minf(VIDA_INICIAL, vida + 0.6 * delta)
+			vida_cambiada.emit(vida)
 	
 	# Conteo regresivo para el soplado de auxilio
 	if tiempo_espera_ayuda > 0.0:
@@ -115,6 +122,12 @@ func _physics_process(delta: float) -> void:
 		if tiempo_espera_ayuda <= 0.0:
 			tiempo_espera_ayuda = -1.0
 			_ejecutar_soplado_ayuda()
+	
+	# Generacion dinamica de parasitos termicos
+	tiempo_siguiente_parasito -= delta
+	if tiempo_siguiente_parasito <= 0.0:
+		tiempo_siguiente_parasito = randf_range(45.0, 60.0)
+		_aparecer_parasito()
 	
 	# Condicion de victoria al sobrevivir el tiempo completo
 	if tiempo_restante <= 0.0:
@@ -139,8 +152,8 @@ func _on_panel_apagado(panel: Node) -> void:
 	elif panel.name == "Refrigeracion":
 		for p in paneles:
 			if "tasa_extra" in p:
-				p.tasa_extra = 1.0
-		print(">>> [ALERTA] REFRIGERACIÓN CAÍDA: Todos los paneles generan +1.0°C/s de calor extra! <<<")
+				p.tasa_extra = 0.35
+		print(">>> [ALERTA] REFRIGERACIÓN CAÍDA: Sobretasa térmica de +0.35°C/s <<<")
 	
 	# Efecto de fallo en comunicaciones: perdida de telemetria
 	elif panel.name == "Comunicaciones":
@@ -201,9 +214,9 @@ func _ejecutar_soplado_ayuda() -> void:
 	# Enfriamiento simultaneo de todos los paneles activos
 	for p in paneles:
 		if "apagado" in p and not p.apagado:
-			p.calor = maxf(0.0, p.calor - 20.0)
+			p.calor = maxf(0.0, p.calor - 25.0)
 			p.actualizar_interfaz_diegética()
-	print(">>> [RADIO] ¡SOPLADO DE EMERGENCIA RECIBIDO! Todos los paneles encendidos bajan 20°C de calor. <<<")
+	print(">>> [RADIO] ¡SOPLADO DE EMERGENCIA RECIBIDO! Todos los paneles encendidos bajan 25°C de calor. <<<")
 
 func aplicar_danio_vida(cantidad: float) -> void:
 	if estado_partida != EstadoPartida.JUGANDO:
@@ -219,6 +232,19 @@ func _panel_esta_apagado(nombre_panel: String) -> bool:
 		if p.name == nombre_panel:
 			return p.get("apagado") == true
 	return false
+
+func _aparecer_parasito() -> void:
+	var mejor_panel: Node = null
+	var mayor_calor: float = -1.0
+	for p in paneles:
+		if p.get("apagado") == true or p.get("tiene_sanguijuela") == true:
+			continue
+		var c = p.get("calor") if "calor" in p else 0.0
+		if c > mayor_calor:
+			mayor_calor = c
+			mejor_panel = p
+	if mejor_panel != null and mejor_panel.has_method("adherir_sanguijuela"):
+		mejor_panel.adherir_sanguijuela()
 
 func _finalizar_partida(victoria: bool, motivo: String) -> void:
 	estado_partida = EstadoPartida.VICTORIA if victoria else EstadoPartida.DERROTA

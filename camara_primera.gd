@@ -7,6 +7,14 @@ extends Camera3D
 @export var fov_apuntando = 50.0
 @export var rapidez_zoom = 10.0
 
+var shake_timer: float = 0.0
+var shake_intensity: float = 0.05
+var offset_shake: Vector3 = Vector3.ZERO
+
+func sacudir(intensidad: float = 0.06, duracion: float = 0.35) -> void:
+	shake_timer = duracion
+	shake_intensity = intensidad
+
 func _ready():
 	top_level = true
 	rotation = Vector3.ZERO # empieza mirando al frente
@@ -26,7 +34,12 @@ func _unhandled_input(evento):
 		
 
 func _physics_process(delta):
-	global_position = objetivo.global_position + Vector3(0, altura_ojos, 0)
+	if shake_timer > 0.0:
+		shake_timer -= delta
+		offset_shake = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * shake_intensity
+	else:
+		offset_shake = Vector3.ZERO
+	global_position = objetivo.global_position + Vector3(0, altura_ojos, 0) + offset_shake
 	var apunta = Input.is_action_pressed("apuntar")
 	var meta = fov_apuntando if apunta else fov_normal
 	fov = lerp(fov, meta, rapidez_zoom * delta)

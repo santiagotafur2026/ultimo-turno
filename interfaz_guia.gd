@@ -29,12 +29,21 @@ var barra_progreso: ProgressBar
 var lbl_progreso: Label
 var lbl_feedback: Label
 
+# Minijuego de golpe critico
+var contenedor_skill: VBoxContainer
+var draw_skill: Control
+var lbl_skill_txt: Label
+var skill_pos: float = 0.0
+var skill_min: float = 0.72
+var skill_max: float = 0.84
+
 # Cabecera de objetivo
 var cabecera_panel: PanelContainer
 var lbl_objetivo_titulo: Label
 var lbl_objetivo_desc: Label
 var lbl_integridad: Label
 var lbl_vida: Label
+var lbl_herramienta_hud: Label
 
 # Telemetria inferior
 var contenedor_telemetria: HBoxContainer
@@ -122,6 +131,12 @@ func _crear_cabecera_objetivo() -> void:
 	lbl_vida.add_theme_color_override("font_color", COL_CIAN)
 	lbl_vida.add_theme_font_size_override("font_size", 14)
 	caja_der.add_child(lbl_vida)
+	
+	lbl_herramienta_hud = Label.new()
+	lbl_herramienta_hud.text = "MANOS LIBRES"
+	lbl_herramienta_hud.add_theme_color_override("font_color", COL_TEXTO_MUTED)
+	lbl_herramienta_hud.add_theme_font_size_override("font_size", 14)
+	caja_der.add_child(lbl_herramienta_hud)
 
 func _crear_reticula_y_accion() -> void:
 	# Nodo de dibujo personalizado para la reticula
@@ -217,6 +232,27 @@ func _crear_reticula_y_accion() -> void:
 	lbl_feedback.add_theme_font_size_override("font_size", 12)
 	lbl_feedback.visible = false
 	vbox.add_child(lbl_feedback)
+	
+	# Minijuego de golpe critico
+	contenedor_skill = VBoxContainer.new()
+	contenedor_skill.visible = false
+	contenedor_skill.alignment = BoxContainer.ALIGNMENT_CENTER
+	contenedor_skill.add_theme_constant_override("separation", 3)
+	contenedor_skill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(contenedor_skill)
+	
+	draw_skill = Control.new()
+	draw_skill.custom_minimum_size = Vector2(240, 14)
+	draw_skill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	draw_skill.draw.connect(_on_draw_skill)
+	contenedor_skill.add_child(draw_skill)
+	
+	lbl_skill_txt = Label.new()
+	lbl_skill_txt.text = "🎯 [ESPACIO] Purga Crítica (-30°C)"
+	lbl_skill_txt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_skill_txt.add_theme_font_size_override("font_size", 11)
+	lbl_skill_txt.add_theme_color_override("font_color", COL_CIAN)
+	contenedor_skill.add_child(lbl_skill_txt)
 
 func _crear_telemetria_inferior() -> void:
 	var margen := MarginContainer.new()
@@ -327,6 +363,11 @@ func _conectar_sistemas() -> void:
 		interactuador.reinicio_exitoso.connect(_on_reinicio_exitoso)
 		interactuador.enfriando.connect(_on_enfriando)
 		interactuador.enfriamiento_detenido.connect(_on_enfriamiento_detenido)
+		interactuador.skill_check_actualizado.connect(_on_skill_check_actualizado)
+		interactuador.skill_check_resultado.connect(_on_skill_check_resultado)
+		interactuador.herramienta_cambiada.connect(_on_herramienta_cambiada)
+		interactuador.extintor_disparado.connect(_on_extintor_disparado)
+		interactuador.golpe_parasito_ejecutado.connect(_on_golpe_parasito_ejecutado)
 
 func _process(delta: float) -> void:
 	if camara == null:
@@ -369,12 +410,50 @@ func _actualizar_posicion_caja_accion(delta: float) -> void:
 	var meta_exp := 1.0 if panel_enfocado != null else 0.0
 	expansion_reticula = lerpf(expansion_reticula, meta_exp, delta * 12.0)
 
+func _on_draw_skill() -> void:
+	if draw_skill == null:
+		return
+	var w = draw_skill.size.x
+	var h = draw_skill.size.y
+	draw_skill.draw_rect(Rect2(0, 0, w, h), Color(0.08, 0.1, 0.12, 0.95))
+	var x_min = w * skill_min
+	var x_w = w * (skill_max - skill_min)
+	draw_skill.draw_rect(Rect2(x_min, 0, x_w, h), Color(0.2, 0.9, 0.45, 0.9))
+	var x_cur = w * skill_pos
+	draw_skill.draw_line(Vector2(x_cur, -2), Vector2(x_cur, h + 2), Color.WHITE, 2.5)
+
 # -------------------------------------------------------------- Señales de foco
 func _on_panel_enfocado(panel: Node3D) -> void:
 	panel_enfocado = panel
 	caja_accion.visible = true
 	contenedor_progreso.visible = false
 	lbl_feedback.visible = false
+	if contenedor_skill != null:
+		contenedor_skill.visible = false
+	
+	if panel.is_in_group("estaciones_herramienta"):
+		var nom = panel.get("nombre_item") if "nombre_item" in panel else "Herramienta"
+		var ico = panel.get("icono") if "icono" in panel else "🔧"
+		lbl_panel_titulo.text = "%s ESTACIÓN: %s" % [ico, nom.to_upper()]
+		lbl_panel_titulo.add_theme_color_override("font_color", COL_CIAN)
+		lbl_tecla.text = " [ E ] "
+		lbl_accion.text = "Equipar / Devolver herramienta"
+		color_reticula_actual = COL_CIAN
+		return
+	
+	if panel.get("tiene_sanguijuela") == true:
+		var nom = panel.get("nombre_sistema") if "nombre_sistema" in panel else panel.name
+		lbl_panel_titulo.text = "⚠ %s — ¡PARÁSITO ADHERIDO!" % nom
+		lbl_panel_titulo.add_theme_color_override("font_color", COL_ROJO)
+		var tiene_llave = interactuador and interactuador.get("herramienta_equipada") == 1
+		if tiene_llave:
+			lbl_tecla.text = " [ Q ] "
+			lbl_accion.text = "¡Golpear y eliminar parásito!"
+		else:
+			lbl_tecla.text = " [ AVISO ] "
+			lbl_accion.text = "Equipa la Llave Inglesa en la pared oeste"
+		color_reticula_actual = COL_ROJO
+		return
 	
 	var es_apagado = panel.get("apagado") == true
 	var calor = panel.get("calor") if "calor" in panel else 0.0
@@ -385,7 +464,7 @@ func _on_panel_enfocado(panel: Node3D) -> void:
 		lbl_panel_titulo.text = "%s %s — [COLAPSADO]" % [icono, nombre_sistema]
 		lbl_panel_titulo.add_theme_color_override("font_color", COL_ROJO)
 		lbl_tecla.text = " [ E ] "
-		lbl_accion.text = "Mantén presionado para reiniciar"
+		lbl_accion.text = "Mantén presionado para reiniciar (2s)"
 		color_reticula_actual = COL_ROJO
 	else:
 		lbl_panel_titulo.text = "%s %s — %.1f°C" % [icono, nombre_sistema, calor]
@@ -418,7 +497,7 @@ func _on_reinicio_cancelado() -> void:
 
 func _on_reinicio_exitoso(panel: Node3D) -> void:
 	contenedor_progreso.visible = false
-	_mostrar_feedback("✔ ¡SISTEMA RESTAURADO A 60°C!", COL_VERDE)
+	_mostrar_feedback("✔ ¡SISTEMA RESTAURADO A 35°C!", COL_VERDE)
 	if panel != null:
 		_on_panel_enfocado(panel)
 
@@ -429,13 +508,62 @@ func _on_enfriando(panel: Node3D, _delta: float) -> void:
 	var nombre_sistema = panel.get("nombre_sistema") if "nombre_sistema" in panel else panel.name
 	var icono = panel.get("icono") if "icono" in panel else "⚙"
 	lbl_panel_titulo.text = "%s %s — %.1f°C" % [icono, nombre_sistema, calor]
-	lbl_accion.text = "❄ ENFRIANDO (-2.0°C/s)"
+	lbl_accion.text = "❄ ENFRIANDO (-8.0°C/s)"
 	lbl_accion.add_theme_color_override("font_color", COL_CIAN)
 
 func _on_enfriamiento_detenido() -> void:
+	if contenedor_skill != null:
+		contenedor_skill.visible = false
 	if panel_enfocado != null and not panel_enfocado.get("apagado"):
 		lbl_accion.text = "Mantén presionado para enfriar"
 		lbl_accion.add_theme_color_override("font_color", COL_TEXTO)
+
+func _on_skill_check_actualizado(pos: float, z_min: float, z_max: float) -> void:
+	skill_pos = pos
+	skill_min = z_min
+	skill_max = z_max
+	if contenedor_skill != null and not contenedor_skill.visible:
+		contenedor_skill.visible = true
+	if draw_skill != null:
+		draw_skill.queue_redraw()
+
+func _on_skill_check_resultado(exito: bool, _panel: Node3D) -> void:
+	if exito:
+		_mostrar_feedback("✔ ¡PURGA CRÍTICA! -30°C", COL_VERDE)
+	else:
+		_mostrar_feedback("⚡ ¡FALLO! CHISPAZO Y ATURDIMIENTO", COL_ROJO)
+
+func _on_herramienta_cambiada(tipo: int) -> void:
+	if lbl_herramienta_hud == null:
+		return
+	if tipo == 1:
+		lbl_herramienta_hud.text = "🔧 LLAVE INGLESA [Q: Golpear]"
+		lbl_herramienta_hud.add_theme_color_override("font_color", COL_NARANJA)
+		_mostrar_feedback("🔧 Llave Inglesa equipada", COL_NARANJA)
+	elif tipo == 2:
+		var cargas = interactuador.get("cargas_extintor") if interactuador else 3
+		lbl_herramienta_hud.text = "🧯 EXTINTOR CO₂ [%d/3] [Q: Ráfaga]" % cargas
+		lbl_herramienta_hud.add_theme_color_override("font_color", COL_CIAN)
+		_mostrar_feedback("🧯 Extintor de CO₂ equipado", COL_CIAN)
+	else:
+		lbl_herramienta_hud.text = "MANOS LIBRES"
+		lbl_herramienta_hud.add_theme_color_override("font_color", COL_TEXTO_MUTED)
+
+func _on_extintor_disparado(cargas: int, panel: Node3D) -> void:
+	if lbl_herramienta_hud != null:
+		lbl_herramienta_hud.text = "🧯 EXTINTOR CO₂ [%d/3] [Q: Ráfaga]" % cargas
+	if panel != null:
+		_mostrar_feedback("❄ ¡RÁFAGA CO₂ APLICADA! -35°C", COL_CIAN)
+	else:
+		_mostrar_feedback("❄ RÁFAGA DISPARADA (Cargas: %d)" % cargas, COL_CIAN)
+
+func _on_golpe_parasito_ejecutado(panel: Node3D, exito: bool) -> void:
+	if exito:
+		_mostrar_feedback("💥 ¡PARÁSITO ELIMINADO!", COL_VERDE)
+		if panel != null:
+			_on_panel_enfocado(panel)
+	else:
+		_mostrar_feedback("¡GOLPE AL AIRE!", COL_TEXTO_MUTED)
 
 func _mostrar_feedback(mensaje: String, color: Color) -> void:
 	lbl_feedback.text = mensaje
@@ -538,7 +666,7 @@ func _actualizar_mensaje_objetivo(hay_apagado: bool, p_apagado: Node, peor_calor
 	if game_manager._panel_esta_apagado("SoporteVital"):
 		lbl_objetivo_titulo.text = "🚨 ALERTA CRÍTICA — PÉRDIDA DE PRESIÓN Y OXÍGENO"
 		lbl_objetivo_titulo.add_theme_color_override("font_color", COL_ROJO)
-		lbl_objetivo_desc.text = "¡Soporte Vital colapsado! Te estás asfixiando: ve de inmediato y mantén [E] 4 segundos."
+		lbl_objetivo_desc.text = "¡Soporte Vital colapsado! Te estás asfixiando: ve de inmediato y mantén [E] 2 segundos."
 		return
 		
 	if hay_apagado and p_apagado != null:

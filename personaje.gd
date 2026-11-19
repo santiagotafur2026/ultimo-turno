@@ -15,8 +15,19 @@ const RAPIDEZ_MAX = [0.0, 2.0, 0.0]
 var avance = Vector3.ZERO
 var estado = Estado.QUIETO
 var rapidez_max = 0.0
+var tiempo_aturdido: float = 0.0
+
+func aturdir(duracion: float) -> void:
+	tiempo_aturdido = duracion
+	avance = Vector3.ZERO
+	velocity = Vector3.ZERO
 
 func _physics_process(delta):
+	if tiempo_aturdido > 0.0:
+		tiempo_aturdido -= delta
+		velocity = Vector3.ZERO
+		move_and_slide()
+		return
 	velocity += get_gravity() * delta
 	var input_dir = Input.get_vector("move_left", "move_right",
 		"move_up", "move_down")

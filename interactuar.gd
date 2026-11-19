@@ -9,20 +9,46 @@ signal reinicio_exitoso(panel: Node3D)
 signal enfriando(panel: Node3D, delta: float)
 signal enfriamiento_detenido()
 
-@export var alcance: float = 1.5
+# Nuevas señales para las 3 mecánicas
+signal skill_check_actualizado(pos_cursor: float, min_zona: float, max_zona: float)
+signal skill_check_resultado(exito: bool, panel: Node3D)
+signal golpe_parasito_ejecutado(panel: Node3D, exito: bool)
+signal extintor_disparado(cargas_restantes: int, panel: Node3D)
+signal herramienta_cambiada(tipo_herramienta: int)
+
+@export var alcance: float = 1.6
 @onready var pj: CharacterBody3D = get_parent()
 
 var tiempo_reinicio: float = 0.0
-const TIEMPO_REINICIO_TOTAL: float = 4.0 # Cuatro segundos continuos para reactivacion
+const TIEMPO_REINICIO_TOTAL: float = 2.0 # Dos segundos continuos para reactivacion
 
 var panel_actual: Node3D = null
 var esta_reiniciando: bool = false
 var esta_enfriando: bool = false
 
+# --- Mecánica: Herramientas (0: Ninguna, 1: Llave Inglesa, 2: Extintor) ---
+enum Herramienta { NINGUNA, LLAVE_INGLESA, EXTINTOR }
+var herramienta_equipada: int = Herramienta.NINGUNA
+var cargas_extintor: int = 3
+const CARGAS_MAX_EXTINTOR: int = 3
+
+# --- Mecánica: Golpe Crítico de Enfriamiento (Skill Check) ---
+var cursor_critico: float = 0.0
+var dir_cursor_critico: float = 1.0
+const VEL_CURSOR_CRITICO: float = 2.4
+var zona_critica_min: float = 0.72
+var zona_critica_max: float = 0.84
+
 func _ready() -> void:
 	add_to_group("interactuador")
 
 func _physics_process(delta: float) -> void:
+	# Si el jugador está aturdido, cancelar acciones activas
+	if pj != null and "tiempo_aturdido" in pj and pj.tiempo_aturdido > 0.0:
+		_cancelar_reinicio()
+		_detener_enfriamiento()
+		return
+	
 	# Solicitud de ayuda de emergencia por radio
 	if Input.is_action_just_pressed("pedir_ayuda"):
 		var gm = get_tree().get_first_node_in_group("game_manager")
@@ -41,10 +67,27 @@ func _physics_process(delta: float) -> void:
 		else:
 			panel_desenfocado.emit()
 	
+	# --- Interacción con estaciones de herramienta en la pared ---
+	if obj != null and obj.is_in_group("estaciones_herramienta"):
+		if Input.is_action_just_pressed("reiniciar"):
+			if obj.has_method("interactuar_con_jugador"):
+				obj.interactuar_con_jugador(self)
+				herramienta_cambiada.emit(herramienta_equipada)
+		return
+	
+	# --- Uso activo de herramientas (Llave / Extintor) con Q o Espacio ---
+	if Input.is_action_just_pressed("usar_herramienta"):
+		if herramienta_equipada == Herramienta.LLAVE_INGLESA:
+			_ejecutar_golpe_llave(obj)
+			return
+		elif herramienta_equipada == Herramienta.EXTINTOR:
+			_disparar_extintor(obj)
+			return
+	
 	if obj == null:
 		return
 	
-	# Reinicio manual de panel apagado sosteniendo la tecla
+	# --- Reinicio manual de panel apagado sosteniendo la tecla E ---
 	if obj.get("apagado") == true:
 		_detener_enfriamiento()
 		if Input.is_action_pressed("reiniciar"):
@@ -58,7 +101,7 @@ func _physics_process(delta: float) -> void:
 			
 			if Engine.get_physics_frames() % 30 == 0:
 				var pct = int(pct_norm * 100.0)
-				print("[REINICIO] %s: %.1fs / 4.0s (%d%%)" % [obj.name, tiempo_reinicio, pct])
+				print("[REINICIO] %s: %.1fs / 2.0s (%d%%)" % [obj.name, tiempo_reinicio, pct])
 			
 			if tiempo_reinicio >= TIEMPO_REINICIO_TOTAL:
 				if obj.has_method("reiniciar"):
@@ -68,25 +111,105 @@ func _physics_process(delta: float) -> void:
 				esta_reiniciando = false
 		else:
 			_cancelar_reinicio()
-		return # Mientras el panel este apagado o en proceso de reinicio no se puede enfriar
+		return
 	else:
 		_cancelar_reinicio()
 	
-	# Enfriamiento manual sosteniendo el clic cerca de un panel encendido
+	# --- Si el panel tiene un parásito adherido, bloquea el enfriamiento normal ---
+	if obj.get("tiene_sanguijuela") == true:
+		_detener_enfriamiento()
+		return
+	
+	# --- Enfriamiento manual sosteniendo el clic cerca de un panel encendido ---
 	if Input.is_action_pressed("enfriar"):
 		if obj.has_method("enfriar"):
 			obj.enfriar(delta)
 			if not esta_enfriando:
 				esta_enfriando = true
 			enfriando.emit(obj, delta)
-			if Engine.get_physics_frames() % 60 == 0:
-				print("[ENFRIANDO] %s · Calor actual: %.1f°C" % [obj.name, obj.calor])
+			
+			# Avanzar cursor mientras se mantiene clic
+			_procesar_skill_check(delta)
+	elif Input.is_action_just_released("enfriar"):
+		# Al soltar el clic, evaluar si el cursor está en la zona verde
+		_evaluar_purga_al_soltar(obj)
+		_detener_enfriamiento()
 	else:
 		_detener_enfriamiento()
 
+# ---------------------------------------------------- Golpe de Llave Inglesa
+func _ejecutar_golpe_llave(obj: Node3D) -> void:
+	var cam = get_viewport().get_camera_3d()
+	if cam and cam.has_method("sacudir"):
+		cam.sacudir(0.04, 0.2)
+	
+	if obj != null and obj.get("tiene_sanguijuela") == true:
+		var sang = obj.get("sanguijuela_instancia")
+		if sang != null and sang.has_method("recibir_golpe"):
+			sang.recibir_golpe()
+			golpe_parasito_ejecutado.emit(obj, true)
+			return
+	golpe_parasito_ejecutado.emit(obj, false)
+
+# -------------------------------------------------------- Disparo de Extintor
+func _disparar_extintor(obj: Node3D) -> void:
+	if cargas_extintor <= 0:
+		print(">>> [EXTINTOR] ¡Descargado! No quedan cargas de CO₂ <<<")
+		return
+	
+	cargas_extintor -= 1
+	var cam = get_viewport().get_camera_3d()
+	if cam and cam.has_method("sacudir"):
+		cam.sacudir(0.08, 0.35)
+	
+	# Enfriamiento masivo instantáneo (-35°C)
+	if obj != null and obj.get("apagado") != true:
+		if "calor" in obj:
+			obj.calor = maxf(0.0, obj.calor - 35.0)
+			if obj.has_method("actualizar_interfaz_diegética"):
+				obj.actualizar_interfaz_diegética()
+		print(">>> [EXTINTOR] Ráfaga de CO₂ aplicada a %s (-35°C). Cargas restantes: %d <<<" % [obj.name, cargas_extintor])
+	else:
+		print(">>> [EXTINTOR] Ráfaga de CO₂ descargada al aire. Cargas restantes: %d <<<" % cargas_extintor)
+	
+	extintor_disparado.emit(cargas_extintor, obj)
+
+# ------------------------------------ Golpe Crítico de Enfriamiento (Skill Check)
+func _procesar_skill_check(delta: float) -> void:
+	cursor_critico += dir_cursor_critico * VEL_CURSOR_CRITICO * delta
+	if cursor_critico >= 1.0:
+		cursor_critico = 1.0
+		dir_cursor_critico = -1.0
+	elif cursor_critico <= 0.0:
+		cursor_critico = 0.0
+		dir_cursor_critico = 1.0
+	
+	skill_check_actualizado.emit(cursor_critico, zona_critica_min, zona_critica_max)
+
+func _evaluar_purga_al_soltar(obj: Node3D) -> void:
+	if obj == null or obj.get("apagado") == true:
+		return
+	
+	var en_zona: bool = cursor_critico >= zona_critica_min and cursor_critico <= zona_critica_max
+	if en_zona:
+		# ¡PURGA EXITOSA! (-30°C de golpe)
+		if "calor" in obj:
+			obj.calor = maxf(0.0, obj.calor - 30.0)
+			if obj.has_method("actualizar_interfaz_diegética"):
+				obj.actualizar_interfaz_diegética()
+		
+		var cam = get_viewport().get_camera_3d()
+		if cam and cam.has_method("sacudir"):
+			cam.sacudir(0.04, 0.25)
+		
+		# Reubicar zona crítica para el próximo intento
+		zona_critica_min = randf_range(0.55, 0.76)
+		zona_critica_max = zona_critica_min + 0.11
+		skill_check_resultado.emit(true, obj)
+		print(">>> ¡PURGA CRÍTICA EXITOSA en %s! -30°C de calor <<<" % obj.name)
+
 func _cancelar_reinicio() -> void:
 	if esta_reiniciando or tiempo_reinicio > 0.0:
-		print("[REINICIO] Proceso cancelado (tecla liberada o jugador fuera de alcance)")
 		tiempo_reinicio = 0.0
 		esta_reiniciando = false
 		reinicio_cancelado.emit()
@@ -94,6 +217,7 @@ func _cancelar_reinicio() -> void:
 func _detener_enfriamiento() -> void:
 	if esta_enfriando:
 		esta_enfriando = false
+		cursor_critico = 0.0
 		enfriamiento_detenido.emit()
 
 func mas_cercano() -> Node3D:
