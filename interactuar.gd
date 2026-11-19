@@ -207,6 +207,17 @@ func _evaluar_purga_al_soltar(obj: Node3D) -> void:
 		zona_critica_max = zona_critica_min + 0.11
 		skill_check_resultado.emit(true, obj)
 		print(">>> ¡PURGA CRÍTICA EXITOSA en %s! -30°C de calor <<<" % obj.name)
+	else:
+		# ¡FALLO! Chispazo y aturdimiento
+		if pj != null and pj.has_method("aturdir"):
+			pj.aturdir(1.2)
+		
+		var cam = get_viewport().get_camera_3d()
+		if cam and cam.has_method("sacudir"):
+			cam.sacudir(0.09, 0.45)
+		
+		skill_check_resultado.emit(false, obj)
+		print(">>> ¡CHISPAZO POR FALLO DE TIMING! Jugador aturdido 1.2s <<<")
 
 func _cancelar_reinicio() -> void:
 	if esta_reiniciando or tiempo_reinicio > 0.0:

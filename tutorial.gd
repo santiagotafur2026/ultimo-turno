@@ -136,7 +136,7 @@ func _construir_pasos() -> void:
 			"titulo": "Objetivo principal",
 			"ilustracion": "objetivo",
 			"texto": "[b]Sobrevive hasta que el reloj llegue a 00:00.[/b]\n\n"
-				+ "El turno dura [b]5 minutos[/b]. El reloj de la pared de la sala cuenta hacia atrás y parpadea en rojo en los últimos 30 segundos.\n\n"
+				+ "El turno dura [b]5 minutos[/b]. El reloj de la pared cuenta hacia atrás y parpadea en rojo en los últimos 30 segundos.\n\n"
 				+ "Si llega a cero con la sala en pie, el reinicio se completa y " + V + "ganas" + FIN + ".",
 		},
 		{
@@ -155,13 +155,14 @@ func _construir_pasos() -> void:
 				+ "[b]Shift[/b]: correr\n"
 				+ "[b]Clic izquierdo[/b] (mantener): enfriar el panel cercano\n"
 				+ "[b]Clic derecho[/b] (mantener): apuntar / acercar la vista\n"
-				+ "[b]E[/b] (mantener): reiniciar un panel apagado\n"
+				+ "[b]E[/b] (mantener): reiniciar un panel apagado / recoger herramienta\n"
+				+ "[b]Q[/b]: usar herramienta equipada (llave inglesa o extintor)\n"
 				+ "[b]F[/b]: pedir ayuda por radio\n"
 				+ "[b]Enter[/b]: reintentar cuando termina la partida\n"
 				+ "[b]Esc[/b]: liberar el cursor del ratón",
 		},
 		{
-			"titulo": "Mecánicas",
+			"titulo": "Mecánicas básicas",
 			"ilustracion": "mecanicas",
 			"texto": "[b]Colores del panel:[/b]\n"
 				+ V + "verde" + FIN + " menos de 50° · " + N + "naranja" + FIN + " desde 50° · " + R + "rojo" + FIN + " desde 90° (el LED parpadea).\n\n"
@@ -170,31 +171,66 @@ func _construir_pasos() -> void:
 				+ "[b]Alarmas:[/b] cada panel emite un sonido desde los 70°, más fuerte cuanto más se calienta.",
 		},
 		{
+			"titulo": "Purga crítica de enfriamiento",
+			"ilustracion": "mecanicas",
+			"texto": "Mientras mantienes el [b]clic izquierdo[/b] sobre un panel, aparece una " + V + "barra con un indicador en movimiento" + FIN + ".\n\n"
+				+ "• El indicador oscila de un lado a otro sobre la barra.\n"
+				+ "• Hay una " + V + "zona verde" + FIN + " marcada en la barra.\n\n"
+				+ "[b]¿Cómo funciona?[/b]\n"
+				+ "Suelta el clic en el momento exacto en que el indicador esté dentro de la " + V + "zona verde" + FIN + ".\n\n"
+				+ V + "✔ Acierto:" + FIN + " purga instantánea de [b]−30°C[/b] en ese panel.\n"
+				+ R + "✘ Fallo:" + FIN + " chispazo eléctrico — quedas [b]aturdido 1,2 segundos[/b] sin poder actuar.\n\n"
+				+ "La zona verde cambia de posición después de cada intento.",
+		},
+		{
+			"titulo": "Sanguijuelas térmicas",
+			"ilustracion": "mecanicas",
+			"texto": "Con el tiempo aparecen [b]sanguijuelas térmicas[/b]: pequeños parásitos que se adhieren al panel más caliente.\n\n"
+				+ "• Mientras están adheridas, " + R + "bloquean el enfriamiento normal" + FIN + " de ese panel y elevan su temperatura rápidamente.\n\n"
+				+ "[b]¿Cómo eliminarlas?[/b]\n"
+				+ "1. Recoge la [b]llave inglesa[/b] de la pared (pulsa [b]E[/b] cerca de su estación).\n"
+				+ "2. Acércate al panel afectado.\n"
+				+ "3. Pulsa [b]Q[/b] para golpear y destruir la sanguijuela.\n\n"
+				+ N + "⚠ Actúa rápido:" + FIN + " cuanto más tiempo permanezcan, más temperatura acumulan.",
+		},
+		{
+			"titulo": "Extintor de CO₂",
+			"ilustracion": "mecanicas",
+			"texto": "En la pared hay un [b]extintor de CO₂[/b] como recurso de emergencia.\n\n"
+				+ "• Recógelo pulsando [b]E[/b] cerca de su estación.\n"
+				+ "• Acércate a un panel en situación crítica y pulsa [b]Q[/b] para disparar una ráfaga.\n"
+				+ "• La ráfaga reduce [b]−35°C[/b] al instante en ese panel.\n\n"
+				+ N + "⚠ Solo tiene 3 cargas." + FIN + " Una vez agotado no se recarga durante la partida.\n\n"
+				+ "[b]Consejo:[/b] guárdalo para emergencias reales, cuando un panel está al límite y no tienes tiempo de enfriarlo a mano.",
+		},
+		{
 			"titulo": "Cómo ganar",
 			"ilustracion": "ganar",
 			"texto": "• [b]Vigila los diales[/b] y atiende primero el panel más caliente.\n\n"
 				+ "• [b]No esperes al 100°[/b]: enfría antes de que llegue al rojo.\n\n"
-				+ "• Un panel apagado se puede recuperar: [b]reinícialo pronto[/b], sobre todo Soporte Vital y Refrigeración.\n\n"
-				+ "• [b]F[/b] pide un soplado de emergencia que baja 20° a todos los paneles encendidos (llega 5 segundos después y solo se puede usar [b]una vez[/b]).\n\n"
-				+ "• Tu puntuación final suma integridad, vida y paneles que sigan encendidos.",
+				+ "• Usa la [b]purga crítica[/b] para bajar temperatura rápido cuando el panel está en zona peligrosa.\n\n"
+				+ "• [b]Elimina las sanguijuelas[/b] antes de que bloqueen el panel demasiado tiempo.\n\n"
+				+ "• Reserva el [b]extintor[/b] para situaciones críticas; úsalo con cabeza.\n\n"
+				+ "• [b]F[/b] pide un soplado de emergencia (−20° a todos) — solo se puede usar [b]una vez[/b].",
 		},
 		{
 			"titulo": "Qué debes evitar",
 			"ilustracion": "evitar",
 			"texto": R + "Perderás" + FIN + " si ocurre alguna de estas cosas:\n\n"
-				+ "• [b]Sala colapsada:[/b] cada panel que se apaga resta 20 de integridad. Al llegar a 0, se acaba.\n\n"
+				+ "• [b]Sala colapsada:[/b] cada panel que se apaga resta integridad. Al llegar a 0, se acaba.\n\n"
 				+ "• [b]Aire agotado:[/b] con Soporte Vital apagado tu vida baja sin parar.\n\n"
-				+ "• Dejar caer [b]Comunicaciones[/b]: no podrás pedir ayuda por radio.\n\n"
-				+ "• Dejar que se calienten todos a la vez: solo puedes enfriar el panel que tienes más cerca.",
+				+ "• [b]Fallo de purga crítica[/b] en mal momento: el aturdimiento puede costarte un panel.\n\n"
+				+ "• Dejar que se calienten todos a la vez: solo puedes enfriar el panel más cercano.",
 		},
 		{
 			"titulo": "¡A comenzar!",
 			"ilustracion": "comenzar",
 			"texto": "Ya sabes lo esencial:\n\n"
 				+ "• Aguanta [b]5 minutos[/b].\n"
-				+ "• [b]Enfría[/b] los paneles antes de que lleguen a 100°.\n"
-				+ "• [b]Reinicia[/b] los que se apaguen.\n"
-				+ "• Cuida Soporte Vital y Comunicaciones.\n\n"
+				+ "• [b]Enfría[/b] los paneles y usa la [b]purga crítica[/b] para bajar temperatura rápido.\n"
+				+ "• [b]Elimina sanguijuelas[/b] con la llave inglesa antes de que bloqueen el panel.\n"
+				+ "• Usa el [b]extintor[/b] solo en emergencias reales.\n"
+				+ "• [b]Reinicia[/b] los paneles apagados cuanto antes.\n\n"
 				+ V + "Pulsa el botón cuando estés listo." + FIN,
 		},
 	]
