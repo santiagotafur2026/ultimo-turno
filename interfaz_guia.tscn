@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c8vjqk4pmx3b7"]
+
+[ext_resource type="Script" path="res://interfaz_guia.gd" id="1_guia"]
+
+[node name="InterfazGuia" type="CanvasLayer"]
+script = ExtResource("1_guia")

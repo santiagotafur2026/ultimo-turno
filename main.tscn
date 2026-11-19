@@ -6,7 +6,9 @@
 [ext_resource type="Script" uid="uid://c5toiubar7f8n" path="res://interactuar.gd" id="4_lquwl"]
 [ext_resource type="Script" uid="uid://c80mojbxmjab1" path="res://PANEL.gd" id="5_272bh"]
 [ext_resource type="Script" uid="uid://b4vsarubpe0rt" path="res://game_manager.gd" id="6_7mycd"]
-[ext_resource type="Script" path="res://alarma.gd" id="10_alarma"]
+[ext_resource type="Script" uid="uid://but8wvuxxs8mb" path="res://alarma.gd" id="10_alarma"]
+[ext_resource type="PackedScene" uid="uid://c8vjqk4pmx3b7" path="res://interfaz_guia.tscn" id="11_guia"]
+[ext_resource type="Script" path="res://pantalla_pared.gd" id="12_pantalla"]
 
 [sub_resource type="Environment" id="Environment_Interior"]
 ambient_light_source = 2
@@ -54,6 +56,27 @@ albedo_color = Color(0.04, 0.05, 0.06, 1)
 [sub_resource type="BoxMesh" id="Mesh_RelojFondo"]
 material = SubResource("Material_RelojFondo")
 size = Vector3(1.4, 0.45, 0.09)
+
+[sub_resource type="StandardMaterial3D" id="Material_PantallaMarco"]
+albedo_color = Color(0.1, 0.12, 0.14, 1)
+metallic = 0.5
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="Mesh_PantallaMarco"]
+material = SubResource("Material_PantallaMarco")
+size = Vector3(2.3, 1.1, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="Material_PantallaVidrio"]
+albedo_color = Color(0.02, 0.04, 0.05, 1)
+metallic = 0.2
+roughness = 0.3
+emission_enabled = true
+emission = Color(0.03, 0.08, 0.1, 1)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="BoxMesh" id="Mesh_PantallaVidrio"]
+material = SubResource("Material_PantallaVidrio")
+size = Vector3(2.2, 1.0, 0.09)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r6318"]
 radius = 0.35
@@ -282,7 +305,7 @@ text = "⚡ ENERGÍA
 30.0°C"
 font_size = 28
 
-[node name="Alarma" type="Node" parent="Energia"]
+[node name="Alarma" type="Node" parent="Energia" unique_id=1718673707]
 script = ExtResource("10_alarma")
 frecuencia_base = 180.0
 
@@ -335,7 +358,7 @@ text = "❄ REFRIGERACIÓN
 50.0°C"
 font_size = 28
 
-[node name="Alarma" type="Node" parent="Refrigeracion"]
+[node name="Alarma" type="Node" parent="Refrigeracion" unique_id=1749651796]
 script = ExtResource("10_alarma")
 frecuencia_base = 330.0
 
@@ -388,7 +411,7 @@ text = "📡 COMUNICACIONES
 35.0°C"
 font_size = 28
 
-[node name="Alarma" type="Node" parent="Comunicaciones"]
+[node name="Alarma" type="Node" parent="Comunicaciones" unique_id=2035842810]
 script = ExtResource("10_alarma")
 frecuencia_base = 520.0
 
@@ -441,7 +464,7 @@ text = "🫁 SOPORTE VITAL
 40.0°C"
 font_size = 28
 
-[node name="Alarma" type="Node" parent="SoporteVital"]
+[node name="Alarma" type="Node" parent="SoporteVital" unique_id=250525034]
 script = ExtResource("10_alarma")
 frecuencia_base = 660.0
 
@@ -450,3 +473,5 @@ script = ExtResource("6_7mycd")
 luz_principal = NodePath("../LuzPrincipal")
 luz_emergencia = NodePath("../LuzEmergencia")
 etiqueta_reloj = NodePath("../RelojPared/Label3D")
+
+[node name="InterfazGuia" parent="." unique_id=808671410 instance=ExtResource("11_guia")]
