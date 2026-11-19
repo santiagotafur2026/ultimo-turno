@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://b4vsarubpe0rt" path="res://game_manager.gd" id="6_7mycd"]
 [ext_resource type="Script" uid="uid://but8wvuxxs8mb" path="res://alarma.gd" id="10_alarma"]
 [ext_resource type="PackedScene" uid="uid://c8vjqk4pmx3b7" path="res://interfaz_guia.tscn" id="11_guia"]
-[ext_resource type="Script" path="res://pantalla_pared.gd" id="12_pantalla"]
+[ext_resource type="Script" uid="uid://dag3yjm27a00w" path="res://pantalla_pared.gd" id="12_pantalla"]
 
 [sub_resource type="Environment" id="Environment_Interior"]
 ambient_light_source = 2
@@ -76,7 +76,7 @@ emission_energy_multiplier = 0.5
 
 [sub_resource type="BoxMesh" id="Mesh_PantallaVidrio"]
 material = SubResource("Material_PantallaVidrio")
-size = Vector3(2.2, 1.0, 0.09)
+size = Vector3(2.2, 1, 0.09)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r6318"]
 radius = 0.35
@@ -229,6 +229,53 @@ modulate = Color(0.9, 0.95, 1, 1)
 text = "05:00"
 font_size = 52
 outline_size = 8
+
+[node name="PantallaPared" type="Node3D" parent="." unique_id=1689975586]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -2.95)
+script = ExtResource("12_pantalla")
+
+[node name="Marco" type="MeshInstance3D" parent="PantallaPared" unique_id=2108796723]
+mesh = SubResource("Mesh_PantallaMarco")
+
+[node name="Vidrio" type="MeshInstance3D" parent="PantallaPared" unique_id=1315724806]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.01)
+mesh = SubResource("Mesh_PantallaVidrio")
+
+[node name="LuzPantalla" type="OmniLight3D" parent="PantallaPared" unique_id=2072545865]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.25)
+light_color = Color(0.2, 0.85, 0.45, 1)
+light_energy = 0.4
+omni_range = 2.5
+
+[node name="LabelTitulo" type="Label3D" parent="PantallaPared" unique_id=1122198327]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38, 0.06)
+modulate = Color(0.3, 0.85, 1, 1)
+text = "MONITOR CENTRAL DE SUPERVISIÓN"
+font_size = 19
+outline_size = 4
+
+[node name="LabelEstado" type="Label3D" parent="PantallaPared" unique_id=1304479426]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.06)
+modulate = Color(0.2, 0.85, 0.45, 1)
+text = "ESTADO: SALA OPERATIVA Y ESTABLE"
+font_size = 18
+outline_size = 4
+
+[node name="LabelTelemetria" type="Label3D" parent="PantallaPared" unique_id=84392646]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0.06)
+modulate = Color(0.9, 0.95, 1, 1)
+text = "⚡ ENERGÍA: 30°C    |    ❄ REFRIG: 30°C
+📡 COMMS: 30°C      |    🫁 SOPORTE: 40°C"
+font_size = 18
+outline_size = 4
+line_spacing = 6.0
+
+[node name="LabelAlerta" type="Label3D" parent="PantallaPared" unique_id=870274142]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.32, 0.06)
+modulate = Color(0.3, 0.85, 1, 1)
+text = "INTEGRIDAD DE SALA: 100%   |   NIVEL DE OXÍGENO: 100%"
+font_size = 16
+outline_size = 4
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=733500645 node_paths=PackedStringArray("objetivo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4322137, 0)
