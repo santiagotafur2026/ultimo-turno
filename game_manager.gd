@@ -12,6 +12,8 @@ signal minuto_cambiado(nuevo_minuto: int, nueva_tasa: float)
 signal integridad_cambiada(nueva_integridad: float)
 signal vida_cambiada(nueva_vida: float)
 signal partida_terminada(victoria: bool, motivo: String, puntaje: int)
+signal amenaza_inminente(segundos: float)
+signal sanguijuela_aparecida(nombre_panel: String)
 
 @export var luz_principal: Light3D
 @export var luz_emergencia: Light3D
@@ -27,6 +29,7 @@ var paneles: Array[Node] = []
 var motivo_fin: String = ""
 var puntaje_final: int = 0
 var segundo_anterior: int = -1
+var _aviso_parasito_emitido: bool = false
 
 # Variables para la solicitud de auxilio por radio
 var ayuda_usada: bool = false
@@ -125,8 +128,13 @@ func _physics_process(delta: float) -> void:
 	
 	# Generacion dinamica de parasitos termicos
 	tiempo_siguiente_parasito -= delta
+	if tiempo_siguiente_parasito <= 10.0:
+		if not _aviso_parasito_emitido:
+			_aviso_parasito_emitido = true
+		amenaza_inminente.emit(maxf(tiempo_siguiente_parasito, 0.0))
 	if tiempo_siguiente_parasito <= 0.0:
 		tiempo_siguiente_parasito = randf_range(45.0, 60.0)
+		_aviso_parasito_emitido = false
 		_aparecer_parasito()
 	
 	# Condicion de victoria al sobrevivir el tiempo completo
@@ -245,6 +253,8 @@ func _aparecer_parasito() -> void:
 			mejor_panel = p
 	if mejor_panel != null and mejor_panel.has_method("adherir_sanguijuela"):
 		mejor_panel.adherir_sanguijuela()
+		var nombre_panel = mejor_panel.get("nombre_sistema") if "nombre_sistema" in mejor_panel else mejor_panel.name
+		sanguijuela_aparecida.emit(str(nombre_panel))
 
 func _finalizar_partida(victoria: bool, motivo: String) -> void:
 	estado_partida = EstadoPartida.VICTORIA if victoria else EstadoPartida.DERROTA

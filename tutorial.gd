@@ -14,20 +14,20 @@ signal tutorial_terminado(comenzar_partida: bool)
 enum Modo { INICIO_PARTIDA, CONSULTA }
 
 # --- Paleta del juego (sacada de PANEL.gd y main.tscn) ---
-const COL_FONDO := Color(0.04, 0.05, 0.06)
-const COL_MARCO := Color(0.1, 0.12, 0.14)
-const COL_DIAL := Color(0.12, 0.14, 0.16)
-const COL_CONSOLA := Color(0.18, 0.2, 0.22)
-const COL_ESTRUCTURA := Color(0.24, 0.26, 0.28)
-const COL_TEXTO := Color(0.9, 0.95, 1.0)
-const COL_VERDE := Color(0.18, 0.8, 0.44)
-const COL_NARANJA := Color(0.9, 0.49, 0.13)
-const COL_ROJO := Color(0.84, 0.23, 0.23)
+const COL_FONDO := Color(0.018, 0.035, 0.052)
+const COL_MARCO := Color(0.055, 0.095, 0.125)
+const COL_DIAL := Color(0.075, 0.12, 0.15)
+const COL_CONSOLA := Color(0.09, 0.145, 0.18)
+const COL_ESTRUCTURA := Color(0.16, 0.25, 0.29)
+const COL_TEXTO := Color(0.89, 0.95, 0.98)
+const COL_VERDE := Color(0.2, 0.78, 0.72)
+const COL_NARANJA := Color(0.96, 0.57, 0.22)
+const COL_ROJO := Color(0.9, 0.24, 0.2)
 
 # Mismos colores en formato BBCode para el RichTextLabel
-const V := "[color=#2ecc71]"
-const N := "[color=#e67d21]"
-const R := "[color=#d63b3b]"
+const V := "[color=#35cfc0]"
+const N := "[color=#f59b45]"
+const R := "[color=#e65350]"
 const FIN := "[/color]"
 
 # Se debe asignar ANTES de añadir el nodo al arbol (add_child).

@@ -9,6 +9,7 @@ enum TipoHerramienta { LLAVE_INGLESA, EXTINTOR }
 var cargada: bool = true
 var cuerpo_mesh: MeshInstance3D
 var etiqueta: Label3D
+var _tween_interaccion: Tween
 
 func _ready() -> void:
 	add_to_group("interactivos")
@@ -72,22 +73,75 @@ func interactuar_con_jugador(interactuador: Node) -> void:
 	if interactuador == null:
 		return
 	var item_actual = interactuador.get("herramienta_equipada")
+	var herramienta_seleccionada: int = tipo + 1
+	var equipando: bool = item_actual != herramienta_seleccionada
+
+	if equipando:
+		for estacion in get_tree().get_nodes_in_group("estaciones_herramienta"):
+			if estacion is EstacionHerramienta:
+				estacion.cuerpo_mesh.visible = estacion.tipo + 1 != herramienta_seleccionada
+				estacion._animar_interaccion(estacion == self)
+		interactuador.set("herramienta_equipada", herramienta_seleccionada)
+	else:
+		cuerpo_mesh.visible = true
+		interactuador.set("herramienta_equipada", 0)
+		_animar_interaccion(false)
 	
 	if tipo == TipoHerramienta.LLAVE_INGLESA:
-		if item_actual == 1: # Ya tiene la llave
-			interactuador.set("herramienta_equipada", 0) # Desequipar
-			cuerpo_mesh.visible = true
+		if not equipando:
 			print(">>> [HERRAMIENTAS] Llave Inglesa guardada en el soporte. <<<")
 		else:
-			interactuador.set("herramienta_equipada", 1) # Equipar Llave
-			cuerpo_mesh.visible = false
 			print(">>> [HERRAMIENTAS] Llave Inglesa equipada. Presiona [Q / Clic] para golpear. <<<")
 	elif tipo == TipoHerramienta.EXTINTOR:
-		if item_actual == 2: # Ya tiene el extintor
-			interactuador.set("herramienta_equipada", 0) # Desequipar
-			cuerpo_mesh.visible = true
+		if not equipando:
 			print(">>> [HERRAMIENTAS] Extintor colocado en su soporte. <<<")
 		else:
-			interactuador.set("herramienta_equipada", 2) # Equipar Extintor
-			cuerpo_mesh.visible = false
 			print(">>> [HERRAMIENTAS] Extintor de CO₂ equipado. Presiona [ESPACIO / Q] para ráfaga criogénica. <<<")
+
+func _animar_interaccion(equipando: bool) -> void:
+	if _tween_interaccion != null and _tween_interaccion.is_running():
+		_tween_interaccion.kill()
+
+	var escala_objetivo := Vector3.ONE if cuerpo_mesh.visible else Vector3.ZERO
+	if cuerpo_mesh.visible and equipando:
+		cuerpo_mesh.scale = Vector3.ONE * 0.72
+		_tween_interaccion = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_tween_interaccion.tween_property(cuerpo_mesh, "scale", Vector3.ONE, 0.28)
+		_emitir_chispa_interaccion()
+	else:
+		_tween_interaccion = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		_tween_interaccion.tween_property(cuerpo_mesh, "rotation:z", cuerpo_mesh.rotation.z + deg_to_rad(20.0), 0.12)
+		_tween_interaccion.parallel().tween_property(cuerpo_mesh, "scale", escala_objetivo, 0.16)
+		_tween_interaccion.tween_callback(func() -> void:
+			cuerpo_mesh.rotation.z = 0.0
+		)
+
+func _emitir_chispa_interaccion() -> void:
+	var particulas := CPUParticles3D.new()
+	particulas.one_shot = true
+	particulas.amount = 10
+	particulas.lifetime = 0.35
+	particulas.explosiveness = 1.0
+	particulas.direction = Vector3(0.0, 0.2, 1.0)
+	particulas.spread = 65.0
+	particulas.initial_velocity_min = 0.35
+	particulas.initial_velocity_max = 0.8
+	particulas.gravity = Vector3(0.0, -0.5, 0.0)
+	particulas.scale_amount_min = 0.025
+	particulas.scale_amount_max = 0.05
+	particulas.color = Color(0.35, 0.9, 1.0, 0.9) if tipo == TipoHerramienta.EXTINTOR else Color(1.0, 0.7, 0.22, 0.9)
+	var malla := SphereMesh.new()
+	malla.radius = 0.5
+	malla.height = 1.0
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = particulas.color
+	material.emission_enabled = true
+	material.emission = particulas.color
+	material.emission_energy_multiplier = 1.4
+	malla.material = material
+	particulas.mesh = malla
+	particulas.position = cuerpo_mesh.position + Vector3(0.0, 0.0, 0.12)
+	add_child(particulas)
+	particulas.emitting = true
+	get_tree().create_timer(particulas.lifetime + 0.1).timeout.connect(particulas.queue_free)

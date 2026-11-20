@@ -1,13 +1,13 @@
 class_name InterfazGuia extends CanvasLayer
 
 # --- Paleta de colores oficial del juego ---
-const COL_FONDO := Color(0.04, 0.06, 0.08, 0.88)
-const COL_BORDE := Color(0.2, 0.25, 0.3, 0.8)
-const COL_VERDE := Color(0.18, 0.8, 0.44)
-const COL_NARANJA := Color(0.9, 0.49, 0.13)
-const COL_ROJO := Color(0.85, 0.2, 0.2)
-const COL_CIAN := Color(0.25, 0.78, 0.95)
-const COL_TEXTO := Color(0.92, 0.96, 1.0)
+const COL_FONDO := Color(0.018, 0.035, 0.052, 0.92)
+const COL_BORDE := Color(0.18, 0.32, 0.38, 0.84)
+const COL_VERDE := Color(0.2, 0.78, 0.72)
+const COL_NARANJA := Color(0.96, 0.57, 0.22)
+const COL_ROJO := Color(0.9, 0.24, 0.2)
+const COL_CIAN := Color(0.36, 0.78, 0.94)
+const COL_TEXTO := Color(0.89, 0.95, 0.98)
 const COL_TEXTO_MUTED := Color(0.6, 0.65, 0.7)
 const COL_TECLA_FONDO := Color(0.12, 0.15, 0.18)
 const COL_APAGADO := Color(0.5, 0.5, 0.5)
@@ -59,6 +59,10 @@ var expansion_reticula: float = 0.0
 var color_reticula_actual: Color = Color(1, 1, 1, 0.4)
 var tiempo_feedback: float = 0.0
 var mensaje_objetivo_prioritario: String = ""
+var aviso_parasito: PanelContainer = null
+var lbl_aviso_parasito: Label = null
+var tiempo_aviso_parasito: float = 0.0
+var _aviso_activo: bool = false
 
 func _ready() -> void:
 	layer = 10 # Se dibuja encima de la escena 3D
@@ -73,9 +77,31 @@ func _construir_interfaz() -> void:
 	add_child(raiz)
 	
 	_crear_cabecera_objetivo()
+	_crear_aviso_sanguijuela()
 	_crear_reticula_y_accion()
 	_crear_telemetria_inferior()
 	_crear_capa_flechas()
+
+func _crear_aviso_sanguijuela() -> void:
+	aviso_parasito = PanelContainer.new()
+	aviso_parasito.name = "AvisoSanguijuela"
+	aviso_parasito.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	aviso_parasito.offset_top = 96
+	aviso_parasito.offset_left = -260
+	aviso_parasito.offset_right = 260
+	aviso_parasito.custom_minimum_size = Vector2(520, 46)
+	aviso_parasito.visible = false
+	aviso_parasito.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	aviso_parasito.add_theme_stylebox_override("panel", _crear_estilo_panel(Color(0.14, 0.025, 0.02, 0.96), COL_ROJO, 8, 3))
+	raiz.add_child(aviso_parasito)
+
+	lbl_aviso_parasito = Label.new()
+	lbl_aviso_parasito.text = "⚠ ANOMALÍA BIOLÓGICA DETECTADA"
+	lbl_aviso_parasito.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_aviso_parasito.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl_aviso_parasito.add_theme_color_override("font_color", COL_ROJO)
+	lbl_aviso_parasito.add_theme_font_size_override("font_size", 18)
+	aviso_parasito.add_child(lbl_aviso_parasito)
 
 func _crear_cabecera_objetivo() -> void:
 	var margen := MarginContainer.new()
@@ -349,6 +375,8 @@ func _conectar_sistemas() -> void:
 		game_manager.vida_cambiada.connect(_on_vida_cambiada)
 		game_manager.segundo_actualizado.connect(_on_segundo_actualizado)
 		game_manager.partida_terminada.connect(_on_partida_terminada)
+		game_manager.amenaza_inminente.connect(_on_amenaza_inminente)
+		game_manager.sanguijuela_aparecida.connect(_on_sanguijuela_aparecida)
 	
 	camara = get_viewport().get_camera_3d()
 	
@@ -374,6 +402,15 @@ func _process(delta: float) -> void:
 		camara = get_viewport().get_camera_3d()
 	
 	_actualizar_posicion_caja_accion(delta)
+	if _aviso_activo:
+		tiempo_aviso_parasito -= delta
+		if tiempo_aviso_parasito <= 0.0:
+			_aviso_activo = false
+			aviso_parasito.visible = false
+		elif aviso_parasito != null:
+			var parpadeo = int(Time.get_ticks_msec() / 180) % 2 == 0
+			aviso_parasito.modulate = Color(1, 1, 1, 1) if parpadeo else Color(1, 0.55, 0.45, 0.78)
+			aviso_parasito.position.x = raiz.size.x * 0.5 - 260.0
 	_actualizar_telemetria_y_alertas()
 	_actualizar_flechas_perimetrales()
 	reticula_draw.queue_redraw()
@@ -780,6 +817,19 @@ func _on_segundo_actualizado(tiempo: float) -> void:
 	var formato_tiempo = "%02d:%02d" % [m, s]
 	lbl_objetivo_titulo.text = "TURNO EN CURSO — TIEMPO RESTANTE: %s" % formato_tiempo
 
+func _on_amenaza_inminente(segundos: float) -> void:
+	_aviso_activo = true
+	tiempo_aviso_parasito = segundos
+	aviso_parasito.visible = true
+	lbl_aviso_parasito.text = "⚠ POSIBLE SANGUIJUELA TÉRMICA — VIGILANCIA: %.0fs" % ceil(segundos)
+
+func _on_sanguijuela_aparecida(nombre_panel: String) -> void:
+	_aviso_activo = true
+	tiempo_aviso_parasito = 4.0
+	aviso_parasito.visible = true
+	lbl_aviso_parasito.text = "☢ ¡SANGUIJUELA ADHERIDA A %s! BUSCA LA LLAVE INGLESA!" % nombre_panel.to_upper()
+	_mostrar_feedback("⚠ AMENAZA ACTIVA — %s" % nombre_panel.to_upper(), COL_ROJO)
+
 func _on_partida_terminada(victoria: bool, motivo: String, puntaje: int) -> void:
 	cabecera_panel.visible = false
 	caja_accion.visible = false
@@ -787,13 +837,22 @@ func _on_partida_terminada(victoria: bool, motivo: String, puntaje: int) -> void
 	contenedor_flechas.visible = false
 	reticula_draw.visible = false
 	
-	# Pantalla de resultados integrada
+	# Pantalla de resultados perfectamente centrada mediante contenedor de ancho completo.
+	var capa_fin := Control.new()
+	capa_fin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	capa_fin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	raiz.add_child(capa_fin)
+
+	var centro_fin := CenterContainer.new()
+	centro_fin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	centro_fin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	capa_fin.add_child(centro_fin)
+
 	var panel_fin := PanelContainer.new()
-	panel_fin.set_anchors_preset(Control.PRESET_CENTER)
 	panel_fin.custom_minimum_size = Vector2(460, 260)
-	panel_fin.add_theme_stylebox_override("panel", _crear_estilo_panel(COL_FONDO, COL_VERDE if victoria else COL_ROJO, 8, 3))
-	panel_fin.position = (raiz.size * 0.5) - Vector2(230, 130)
-	raiz.add_child(panel_fin)
+	panel_fin.add_theme_stylebox_override("panel", _crear_estilo_panel(Color(0.025, 0.035, 0.045, 0.97), COL_VERDE if victoria else COL_ROJO, 10, 3))
+	panel_fin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	centro_fin.add_child(panel_fin)
 	
 	var v := VBoxContainer.new()
 	v.alignment = BoxContainer.ALIGNMENT_CENTER
