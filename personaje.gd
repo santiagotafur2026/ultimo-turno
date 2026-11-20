@@ -2,7 +2,7 @@ extends CharacterBody3D
 enum Estado { QUIETO, CAMINAR, ENFRIANDO }
 const RAPIDEZ_MAX = [0.0, 2.0, 0.0]
 @export var camara: Camera3D
-@export var speed_caminar = 2.5
+@export var speed_caminar = 2.0
 @export var speed_correr = 6.0
 @export var tiempo_arranque = 0.25
 @onready var anim = $Modelo/AnimationPlayer
@@ -15,8 +15,19 @@ const RAPIDEZ_MAX = [0.0, 2.0, 0.0]
 var avance = Vector3.ZERO
 var estado = Estado.QUIETO
 var rapidez_max = 0.0
+var tiempo_aturdido: float = 0.0
+
+func aturdir(duracion: float) -> void:
+	tiempo_aturdido = duracion
+	avance = Vector3.ZERO
+	velocity = Vector3.ZERO
 
 func _physics_process(delta):
+	if tiempo_aturdido > 0.0:
+		tiempo_aturdido -= delta
+		velocity = Vector3.ZERO
+		move_and_slide()
+		return
 	velocity += get_gravity() * delta
 	var input_dir = Input.get_vector("move_left", "move_right",
 		"move_up", "move_down")
@@ -36,10 +47,11 @@ func _physics_process(delta):
 		basis = Basis.looking_at(direction)
 	
 	move_and_slide()
-	var antes=estado
-	rapidez_max= RAPIDEZ_MAX[estado]
-	if estado!= antes:
-		print("Estado ",Estado.keys()[estado]," .Rapidez max", rapidez_max ," m/s")
+	var antes = estado
+	estado = elegir_estado()
+	rapidez_max = RAPIDEZ_MAX[estado]
+	if estado != antes:
+		print("Estado ", Estado.keys()[estado], " .Rapidez max", rapidez_max ," m/s")
 		animar()
 		#_prueba()
 func elegir_estado():
@@ -62,4 +74,5 @@ func animar():
 		Estado.CAMINAR:
 			anim.play("walk")
 		Estado.ENFRIANDO:
-			anim.play("crouch")
+			if anim.has_animation("crouch"):
+				anim.play("crouch")
